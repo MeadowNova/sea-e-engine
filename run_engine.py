@@ -15,11 +15,17 @@ Usage:
 import os
 import sys
 import argparse
+import logging
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Add src to Python path
-sys.path.append(str(Path(__file__).parent / "src"))
+# Ensure src directory is in Python path for imports
+# This helps resolve imports like 'from core.logger import ...'
+# by making the 'src' directory a recognized root for modules.
+project_root = Path(__file__).parent.resolve()
+src_path = project_root / "src"
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
 
 from core.logger import setup_logger
 
@@ -180,14 +186,9 @@ def main():
         
         engine = SEAEngine()
         
-        # Initialize the engine
-        if not engine.initialize():
-            logger.error("❌ Failed to initialize SEA Engine")
-            return 1
-        
-        # Test connections
-        if not engine.test_connections():
-            logger.error("❌ API connection tests failed")
+        # Validate environment (engine does this in __init__)
+        if not engine.validate_environment():
+            logger.error("❌ Failed to validate environment for SEA Engine")
             return 1
         
         logger.info("✅ SEA Engine initialized successfully")
