@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sea-engine.com/schemas/output_config.json",
+  "title": "Output Management Configuration",
+  "description": "Configuration for managing generated mockup files and storage",
+  "version": "1.0.0",
+  "last_updated": "2025-01-15",
+  
+  "cache_settings": {
+    "max_total_size_mb": 500,
+    "max_test_files": 50,
+    "max_age_days": 7,
+    "cleanup_on_startup": true,
+    "auto_organize": true
+  },
+  
+  "file_categories": {
+    "test": {
+      "description": "Test and development mockups",
+      "patterns": [
+        "test_*",
+        "*_test_*", 
+        "calibration_*",
+        "position_*",
+        "blend_test_*",
+        "template_test_*",
+        "comparison_*",
+        "workflow_*"
+      ],
+      "max_age_hours": 24,
+      "max_count": 20,
+      "auto_delete": true
+    },
+    
+    "production": {
+      "description": "Final production mockups for client use",
+      "patterns": [
+        "prod_*",
+        "*_final_*",
+        "*_client_*",
+        "*_delivery_*"
+      ],
+      "max_age_days": 30,
+      "max_count": 100,
+      "auto_delete": false
+    },
+    
+    "temp": {
+      "description": "Temporary files and intermediate processing",
+      "patterns": [
+        "temp_*",
+        "*_temp_*",
+        "*_intermediate_*",
+        "processing_*"
+      ],
+      "max_age_hours": 2,
+      "max_count": 10,
+      "auto_delete": true
+    },
+    
+    "perspective": {
+      "description": "Perspective transformation tests and calibration",
+      "patterns": [
+        "*_perspective_*",
+        "poster_*_perspective*",
+        "perspective_test_*",
+        "custom_corners_*"
+      ],
+      "max_age_hours": 48,
+      "max_count": 30,
+      "auto_delete": true
+    }
+  },
+  
+  "directories": {
+    "test": "test_outputs",
+    "production": "production", 
+    "temp": "temp",
+    "perspective": "perspective_tests",
+    "archive": "archive"
+  },
+  
+  "cleanup_schedule": {
+    "enabled": true,
+    "frequency": "daily",
+    "time": "02:00",
+    "force_cleanup_size_mb": 1000
+  },
+  
+  "retention_policies": {
+    "test_files": {
+      "keep_latest": 10,
+      "max_age_hours": 24,
+      "size_limit_mb": 100
+    },
+    "perspective_tests": {
+      "keep_latest": 20,
+      "max_age_hours": 48,
+      "size_limit_mb": 200
+    },
+    "production_files": {
+      "keep_latest": 100,
+      "max_age_days": 30,
+      "size_limit_mb": 500
+    }
+  },
+  
+  "compression": {
+    "enabled": true,
+    "archive_old_files": true,
+    "compression_format": "zip",
+    "compress_after_days": 7
+  },
+  
+  "monitoring": {
+    "log_storage_stats": true,
+    "alert_size_threshold_mb": 750,
+    "alert_file_count_threshold": 200
+  }
+}

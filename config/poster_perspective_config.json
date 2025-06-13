@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sea-engine.com/schemas/poster_perspective_config.json",
+  "title": "Poster Perspective Configuration",
+  "description": "Corner point configurations for perspective transformation of art prints and posters",
+  "version": "1.0.0",
+  "last_updated": "2025-01-15",
+  
+  "templates": {
+    "1.jpg": {
+      "name": "Straight Front View Poster",
+      "description": "Poster displayed straight-on, minimal perspective",
+      "perspective_type": "straight",
+      "corners": [
+        [350, 250],
+        [1650, 250],
+        [1650, 1750],
+        [350, 1750]
+      ],
+      "difficulty": "easy",
+      "notes": "Standard rectangular frame, no perspective correction needed"
+    },
+    
+    "2.jpg": {
+      "name": "Angled Poster Frame",
+      "description": "Poster at slight angle, requires perspective correction",
+      "perspective_type": "angled",
+      "corners": [
+        [400, 300],
+        [1600, 250],
+        [1650, 1750],
+        [350, 1800]
+      ],
+      "difficulty": "medium",
+      "notes": "Slight rotation and perspective, good for dynamic presentation"
+    },
+    
+    "3.jpg": {
+      "name": "Side Angle Poster",
+      "description": "Poster viewed from side angle",
+      "perspective_type": "side_angle",
+      "corners": [
+        [500, 400],
+        [1400, 300],
+        [1500, 1600],
+        [600, 1700]
+      ],
+      "difficulty": "medium",
+      "notes": "More pronounced side perspective"
+    },
+    
+    "4.jpg": {
+      "name": "Gallery Wall Poster",
+      "description": "Poster in gallery setting with perspective",
+      "perspective_type": "gallery",
+      "corners": [
+        [450, 350],
+        [1550, 320],
+        [1580, 1680],
+        [420, 1720]
+      ],
+      "difficulty": "medium",
+      "notes": "Gallery wall context with subtle perspective"
+    },
+    
+    "5.jpg": {
+      "name": "Living Room Poster",
+      "description": "Poster in living room setting",
+      "perspective_type": "room_context",
+      "corners": [
+        [380, 280],
+        [1620, 260],
+        [1640, 1740],
+        [360, 1760]
+      ],
+      "difficulty": "easy",
+      "notes": "Room context with minimal perspective distortion"
+    },
+    
+    "6.jpg": {
+      "name": "Tilted Frame Poster",
+      "description": "Poster with noticeable tilt and perspective",
+      "perspective_type": "tilted",
+      "corners": [
+        [520, 450],
+        [1480, 350],
+        [1550, 1650],
+        [590, 1750]
+      ],
+      "difficulty": "hard",
+      "notes": "Significant tilt requiring careful corner adjustment"
+    },
+    
+    "7.jpg": {
+      "name": "Modern Frame Poster",
+      "description": "Modern frame with subtle perspective",
+      "perspective_type": "modern",
+      "corners": [
+        [400, 320],
+        [1600, 300],
+        [1620, 1700],
+        [380, 1720]
+      ],
+      "difficulty": "medium",
+      "notes": "Clean modern frame with slight perspective"
+    },
+    
+    "8.jpg": {
+      "name": "Artistic Angle Poster",
+      "description": "Artistic presentation with dynamic angle",
+      "perspective_type": "artistic",
+      "corners": [
+        [480, 380],
+        [1520, 320],
+        [1580, 1620],
+        [540, 1680]
+      ],
+      "difficulty": "hard",
+      "notes": "Dynamic artistic angle for creative presentation"
+    }
+  },
+  
+  "calibration_guide": {
+    "description": "Guide for fine-tuning corner points",
+    "steps": [
+      "1. Generate calibration mockup with current settings",
+      "2. Open generated mockup and examine corner alignment",
+      "3. Identify where white corner circles should be positioned",
+      "4. Adjust corner coordinates accordingly",
+      "5. Regenerate and repeat until perfect alignment"
+    ],
+    "corner_order": [
+      "top-left",
+      "top-right", 
+      "bottom-right",
+      "bottom-left"
+    ],
+    "tips": [
+      "Start with rough estimates and refine iteratively",
+      "Pay attention to the frame edges in the template",
+      "Small adjustments (10-20 pixels) can make big differences",
+      "Test with high-contrast designs for better visibility"
+    ]
+  },
+  
+  "perspective_types": {
+    "straight": {
+      "description": "No perspective correction needed",
+      "use_case": "Front-facing posters with minimal angle"
+    },
+    "angled": {
+      "description": "Slight rotation and perspective",
+      "use_case": "Posters with subtle dynamic angle"
+    },
+    "side_angle": {
+      "description": "Viewed from side with perspective",
+      "use_case": "More dramatic side perspective"
+    },
+    "tilted": {
+      "description": "Noticeable tilt requiring correction",
+      "use_case": "Artistic tilted presentations"
+    },
+    "gallery": {
+      "description": "Gallery wall context",
+      "use_case": "Professional gallery presentations"
+    },
+    "room_context": {
+      "description": "Room setting with context",
+      "use_case": "Home/office environment mockups"
+    },
+    "modern": {
+      "description": "Clean modern presentation",
+      "use_case": "Contemporary frame styles"
+    },
+    "artistic": {
+      "description": "Creative artistic angle",
+      "use_case": "Dynamic creative presentations"
+    }
+  },
+  
+  "quality_settings": {
+    "draft": {
+      "description": "Quick preview quality",
+      "interpolation": "INTER_LINEAR",
+      "output_quality": 75
+    },
+    "standard": {
+      "description": "Good quality for most uses",
+      "interpolation": "INTER_LANCZOS4",
+      "output_quality": 90
+    },
+    "high": {
+      "description": "Maximum quality for final output",
+      "interpolation": "INTER_LANCZOS4",
+      "output_quality": 95,
+      "anti_aliasing": true
+    }
+  },
+  
+  "design_guidelines": {
+    "recommended_resolution": "300 DPI minimum for print quality",
+    "aspect_ratios": {
+      "standard_poster": "2:3 (portrait) or 3:2 (landscape)",
+      "square_art": "1:1",
+      "panoramic": "3:1 or wider"
+    },
+    "color_considerations": {
+      "note": "Perspective transformation may slightly affect colors",
+      "recommendation": "Use high-contrast designs for better visibility",
+      "color_space": "sRGB recommended for web display"
+    }
+  }
+}

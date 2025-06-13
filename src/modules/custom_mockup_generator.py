@@ -21,6 +21,11 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 import numpy as np
+import sys
+
+# Add utils to path for output manager
+sys.path.append(str(Path(__file__).parent.parent))
+from utils.output_manager import OutputManager
 
 # Set up logging
 logger = logging.getLogger("custom_mockup_generator")
@@ -74,7 +79,7 @@ class CustomMockupGenerator:
     """
     
     def __init__(self, assets_dir: str = "assets", output_dir: str = "output",
-                 config_file: str = "config/mockup_templates.json"):
+                 config_file: str = "config/mockup_templates.json", auto_manage: bool = True):
         """
         Initialize the custom mockup generator.
 
@@ -82,10 +87,18 @@ class CustomMockupGenerator:
             assets_dir: Directory containing mockup assets
             output_dir: Directory for generated mockups
             config_file: Path to template configuration file
+            auto_manage: Enable automatic file management and cleanup
         """
         self.assets_dir = Path(assets_dir)
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Initialize output manager
+        self.auto_manage = auto_manage
+        if auto_manage:
+            self.output_manager = OutputManager(output_dir)
+            # Clean up on startup
+            self.output_manager.cleanup_old_files()
 
         # Load configuration
         self.config = self._load_config(config_file)
@@ -331,9 +344,14 @@ class CustomMockupGenerator:
             
             # Save mockup
             final_mockup.save(output_path, "PNG", quality=95)
-            
+
+            # Auto-organize file if enabled
+            if self.auto_manage:
+                organized_path = self.output_manager.organize_file(output_path)
+                output_path = organized_path
+
             logger.info(f"Generated mockup: {output_path}")
-            
+
             return {
                 'success': True,
                 'mockup_path': str(output_path),
