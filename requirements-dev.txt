@@ -1,0 +1,26 @@
+
+# Development and testing dependencies
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.0
+black>=23.9.0
+flake8>=6.1.0
+mypy>=1.5.0
+
+# Enhanced requests with retry capabilities
+requests>=2.31.0
+requests-oauthlib>=1.3.1
+urllib3>=2.0.0
+
+# Core dependencies (duplicated from main requirements.txt for dev environment)
+python-dotenv>=1.0.0
+gspread>=5.12.0
+google-auth>=2.23.0
+google-auth-oauthlib>=1.1.0
+google-auth-httplib2>=0.1.1
+Pillow>=10.0.0
+pandas>=2.1.0
+colorlog>=6.7.0
+python-dateutil>=2.8.2
+httpx>=0.25.0
+pyyaml>=6.0.1

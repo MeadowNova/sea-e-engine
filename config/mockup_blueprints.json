@@ -1,0 +1,196 @@
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sea-engine.com/schemas/mockup_blueprints.json",
+  "title": "SEA-E Mockup Generation Configuration",
+  "description": "Configuration for automated mockup generation with corrected product variations",
+  "version": "1.1.0",
+  "last_updated": "2025-06-11",
+  "correction_notes": "Updated with accurate color variations: T-shirts (53 colors), Sweatshirts (20 colors), Sensaria confirmed for posters",
+  "mockup_templates": {
+    "tshirt_bella_canvas_3001": {
+      "product_id": "tshirt_bella_canvas_3001",
+      "blueprint_id": 12,
+      "template_name": "Bella+Canvas 3001 Mockups",
+      "priority_colors": [
+        {"color": "white", "hex": "#FFFFFF", "mockup_priority": 1},
+        {"color": "black", "hex": "#000000", "mockup_priority": 2},
+        {"color": "navy", "hex": "#000080", "mockup_priority": 3},
+        {"color": "ash", "hex": "#B2BEB5", "mockup_priority": 4},
+        {"color": "athletic_heather", "hex": "#6C7B7F", "mockup_priority": 5},
+        {"color": "baby_blue", "hex": "#ADD8E6", "mockup_priority": 6},
+        {"color": "dark_grey", "hex": "#A9A9A9", "mockup_priority": 7},
+        {"color": "heather_navy", "hex": "#4F4F8F", "mockup_priority": 8},
+        {"color": "light_blue", "hex": "#ADD8E6", "mockup_priority": 9},
+        {"color": "natural", "hex": "#F5F5DC", "mockup_priority": 10},
+        {"color": "red", "hex": "#FF0000", "mockup_priority": 11}
+      ],
+      "all_available_colors": [
+        "aqua", "army", "ash", "asphalt", "athletic_heather", "autumn", "baby_blue", "berry", "black", "black_heather",
+        "brown", "cardinal", "charity_pink", "dark_grey", "dark_grey_heather", "deep_heather", "forest", "gold",
+        "heather_aqua", "heather_clay", "heather_columbia_blue", "heather_green", "heather_ice_blue", "heather_kelly",
+        "heather_mauve", "heather_mint", "heather_navy", "heather_olive", "heather_peach", "heather_red",
+        "heather_team_purple", "heather_true_royal", "kelly", "leaf", "light_blue", "maroon", "military_green",
+        "natural", "navy", "olive", "orange", "pink", "red", "silver", "soft_cream", "soft_pink", "solid_black_blend",
+        "steel_blue", "team_purple", "true_royal", "turquoise", "white", "yellow"
+      ],
+      "mockup_positions": {
+        "front": {
+          "position": "front",
+          "width": 3319,
+          "height": 3761,
+          "x_offset": 0,
+          "y_offset": 0,
+          "priority": 1
+        },
+        "back": {
+          "position": "back", 
+          "width": 3319,
+          "height": 3761,
+          "x_offset": 0,
+          "y_offset": 0,
+          "priority": 2
+        }
+      },
+      "size_mapping": {
+        "S": {"display_name": "Small", "mockup_priority": 2},
+        "M": {"display_name": "Medium", "mockup_priority": 1},
+        "L": {"display_name": "Large", "mockup_priority": 3},
+        "XL": {"display_name": "Extra Large", "mockup_priority": 4},
+        "2XL": {"display_name": "2X Large", "mockup_priority": 5},
+        "3XL": {"display_name": "3X Large", "mockup_priority": 6}
+      },
+      "automation_rules": {
+        "generate_for_all_colors": false,
+        "max_colors_per_design": 11,
+        "generate_for_all_sizes": false,
+        "default_sizes": ["M", "L", "XL"],
+        "include_lifestyle_shots": true,
+        "include_flat_lay": true
+      }
+    },
+    "sweatshirt_gildan_18000": {
+      "product_id": "sweatshirt_gildan_18000",
+      "blueprint_id": 49,
+      "template_name": "Gildan 18000 Mockups",
+      "priority_colors": [
+        {"color": "black", "hex": "#000000", "mockup_priority": 1},
+        {"color": "navy", "hex": "#000080", "mockup_priority": 2},
+        {"color": "ash", "hex": "#B2BEB5", "mockup_priority": 3},
+        {"color": "dark_heather", "hex": "#424242", "mockup_priority": 4},
+        {"color": "graphite_heather", "hex": "#36454F", "mockup_priority": 5},
+        {"color": "red", "hex": "#FF0000", "mockup_priority": 6},
+        {"color": "sport_grey", "hex": "#808080", "mockup_priority": 7},
+        {"color": "white", "hex": "#FFFFFF", "mockup_priority": 8}
+      ],
+      "all_available_colors": [
+        "ash", "black", "dark_heather", "forest_green", "gold", "graphite_heather", "heliconia", "irish_green",
+        "light_blue", "light_pink", "maroon", "military_green", "navy", "orange", "purple", "red", "royal",
+        "sand", "sport_grey", "white"
+      ],
+      "mockup_positions": {
+        "front": {
+          "position": "front",
+          "width": 3319,
+          "height": 3761,
+          "x_offset": 0,
+          "y_offset": 0,
+          "priority": 1
+        },
+        "back": {
+          "position": "back",
+          "width": 3319,
+          "height": 3761,
+          "x_offset": 0,
+          "y_offset": 0,
+          "priority": 2
+        }
+      },
+      "size_mapping": {
+        "S": {"display_name": "Small", "mockup_priority": 2},
+        "M": {"display_name": "Medium", "mockup_priority": 1},
+        "L": {"display_name": "Large", "mockup_priority": 3},
+        "XL": {"display_name": "Extra Large", "mockup_priority": 4},
+        "2XL": {"display_name": "2X Large", "mockup_priority": 5},
+        "3XL": {"display_name": "3X Large", "mockup_priority": 6}
+      },
+      "automation_rules": {
+        "generate_for_all_colors": false,
+        "max_colors_per_design": 8,
+        "generate_for_all_sizes": false,
+        "default_sizes": ["M", "L", "XL"],
+        "include_lifestyle_shots": true,
+        "include_flat_lay": true
+      }
+    },
+    "poster_matte_sensaria": {
+      "product_id": "poster_matte_sensaria",
+      "blueprint_id": 983,
+      "template_name": "Sensaria Matte Poster Mockups",
+      "priority_colors": [
+        {"color": "white", "hex": "#FFFFFF", "mockup_priority": 1}
+      ],
+      "all_available_colors": ["white"],
+      "mockup_positions": {
+        "front": {
+          "position": "front",
+          "width": 3000,
+          "height": 3000,
+          "x_offset": 0,
+          "y_offset": 0,
+          "priority": 1
+        }
+      },
+      "size_mapping": {
+        "9x11_v": {"display_name": "9″ × 11″ (Vertical)", "aspect_ratio": "9:11", "mockup_priority": 7},
+        "11x9_h": {"display_name": "11″ × 9″ (Horizontal)", "aspect_ratio": "11:9", "mockup_priority": 8},
+        "11x14_v": {"display_name": "11″ × 14″ (Vertical)", "aspect_ratio": "11:14", "mockup_priority": 2},
+        "14x11_h": {"display_name": "14″ × 11″ (Horizontal)", "aspect_ratio": "14:11", "mockup_priority": 6},
+        "12x18_v": {"display_name": "12″ × 18″ (Vertical)", "aspect_ratio": "2:3", "mockup_priority": 5},
+        "18x12_h": {"display_name": "18″ × 12″ (Horizontal)", "aspect_ratio": "3:2", "mockup_priority": 9},
+        "16x20_v": {"display_name": "16″ × 20″ (Vertical)", "aspect_ratio": "4:5", "mockup_priority": 1},
+        "20x16_h": {"display_name": "20″ × 16″ (Horizontal)", "aspect_ratio": "5:4", "mockup_priority": 4},
+        "18x24_v": {"display_name": "18″ × 24″ (Vertical)", "aspect_ratio": "3:4", "mockup_priority": 3},
+        "24x18_h": {"display_name": "24″ × 18″ (Horizontal)", "aspect_ratio": "4:3", "mockup_priority": 10},
+        "20x30_v": {"display_name": "20″ × 30″ (Vertical)", "aspect_ratio": "2:3", "mockup_priority": 11},
+        "30x20_h": {"display_name": "30″ × 20″ (Horizontal)", "aspect_ratio": "3:2", "mockup_priority": 12},
+        "24x36_v": {"display_name": "24″ × 36″ (Vertical)", "aspect_ratio": "2:3", "mockup_priority": 13},
+        "36x24_h": {"display_name": "36″ × 24″ (Horizontal)", "aspect_ratio": "3:2", "mockup_priority": 14}
+      },
+      "automation_rules": {
+        "generate_for_all_colors": true,
+        "max_colors_per_design": 1,
+        "generate_for_all_sizes": false,
+        "default_sizes": ["16x20_v", "11x14_v", "18x24_v"],
+        "include_lifestyle_shots": true,
+        "include_flat_lay": false,
+        "include_framed_mockups": true
+      }
+    }
+  },
+  "global_mockup_settings": {
+    "output_format": "PNG",
+    "resolution": 300,
+    "background_removal": true,
+    "watermark": false,
+    "batch_processing": true,
+    "max_concurrent_generations": 5,
+    "retry_attempts": 3,
+    "timeout_seconds": 120
+  },
+  "quality_standards": {
+    "minimum_resolution": "1200x1200",
+    "preferred_resolution": "2400x2400",
+    "color_accuracy": "sRGB",
+    "file_format": "PNG",
+    "compression": "lossless"
+  },
+  "automation_workflow": {
+    "trigger_on_design_upload": true,
+    "auto_generate_priority_colors": true,
+    "auto_generate_all_sizes": false,
+    "notification_on_completion": true,
+    "save_to_cloud_storage": true,
+    "generate_thumbnails": true
+  }
+}

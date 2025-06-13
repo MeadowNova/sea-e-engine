@@ -1,0 +1,21 @@
+
+{
+  "tshirts_q3_launch": {
+    "type": "google_sheet",
+    "url": "https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
+    "worksheet_name": "Q3_TShirts",
+    "description": "Q3 T-shirt product launch manifest"
+  },
+  "posters_q3_launch": {
+    "type": "google_sheet",
+    "url": "https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
+    "worksheet_name": "Q3_Posters",
+    "description": "Q3 poster product launch manifest"
+  },
+  "example_manifest": {
+    "type": "google_sheet",
+    "url": "https://docs.google.com/spreadsheets/d/your_sheet_id_here",
+    "worksheet_name": "Products",
+    "description": "Example manifest for testing"
+  }
+}

@@ -1,0 +1,411 @@
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sea-engine.com/schemas/product_blueprints.json",
+  "title": "SEA-E Product Blueprints Configuration",
+  "description": "Comprehensive product configuration for Printify integration and automation engine workflow",
+  "version": "1.1.0",
+  "last_updated": "2025-06-11",
+  "correction_notes": "Updated with accurate Printify API data - T-shirts now have 53 colors (not 5), Sweatshirts have 20 colors (not 4), Sensaria confirmed available for posters",
+  "products": {
+    "tshirt_bella_canvas_3001": {
+      "metadata": {
+        "name": "Unisex Jersey Short Sleeve Tee",
+        "brand": "Bella+Canvas",
+        "model": "3001",
+        "category": "apparel",
+        "subcategory": "t-shirts",
+        "status": "active",
+        "validation_status": "api_verified",
+        "total_variants": 318
+      },
+      "printify_config": {
+        "blueprint_id": 12,
+        "blueprint_title": "Unisex Jersey Short Sleeve Tee",
+        "print_provider_id": 29,
+        "print_provider_name": "Monster Digital",
+        "print_provider_location": {
+          "address": "16085 NW 52ND Avenue",
+          "city": "Miami",
+          "state": "FL",
+          "zip": "33014",
+          "country": "US"
+        },
+        "alternative_providers": [
+          {"id": 26, "name": "Textildruck Europa"},
+          {"id": 103, "name": "Stacked Commerce"},
+          {"id": 30, "name": "OPT OnDemand"},
+          {"id": 51, "name": "FYBY"},
+          {"id": 68, "name": "X-Print"},
+          {"id": 50, "name": "Underground Threads"},
+          {"id": 6, "name": "T Shirt and Sons"},
+          {"id": 41, "name": "Duplium"},
+          {"id": 27, "name": "Print Geek"},
+          {"id": 72, "name": "Print Clever"},
+          {"id": 39, "name": "SwiftPOD"},
+          {"id": 61, "name": "Dimona Tee"},
+          {"id": 54, "name": "JAMS Designs"},
+          {"id": 99, "name": "Printify Choice"},
+          {"id": 87, "name": "Print Logistic"},
+          {"id": 43, "name": "Stoked On Printing"},
+          {"id": 3, "name": "Marco Fine Arts"},
+          {"id": 42, "name": "Drive Fulfillment"},
+          {"id": 331, "name": "Shirt Monkey"},
+          {"id": 217, "name": "Fulfill Engine"}
+        ]
+      },
+      "product_specifications": {
+        "description": "Classic unisex jersey short sleeve tee fits like a well-loved favorite. Made with 100% Airlume combed and ring-spun cotton, lightweight fabric (4.2 oz/yd² (142 g/m²)). Retail fit perfect for casual and semi-formal settings.",
+        "fabric_details": {
+          "material": "100% Airlume combed and ring-spun cotton",
+          "weight": "4.2 oz/yd² (142 g/m²)",
+          "fit": "Retail fit",
+          "features": ["Ribbed knit collars", "Tapered shoulders", "Dual side seams", "Tear-away label"],
+          "fabric_blends": {
+            "ash_heather_prism": "99% cotton, 1% polyester",
+            "heather_solid_blend": "52% cotton, 48% polyester",
+            "athletic_heather_black": "90% cotton, 10% polyester"
+          }
+        },
+        "care_instructions": ["Machine wash cold", "Tumble dry low", "Do not bleach", "Iron low heat"]
+      },
+      "available_options": {
+        "colors": {
+          "aqua": {"name": "Aqua", "hex_code": "#00FFFF", "printify_color_id": "aqua", "popularity_rank": 25, "recommended": false},
+          "army": {"name": "Army", "hex_code": "#4B5320", "printify_color_id": "army", "popularity_rank": 26, "recommended": false},
+          "ash": {"name": "Ash", "hex_code": "#B2BEB5", "printify_color_id": "ash", "popularity_rank": 6, "recommended": true},
+          "asphalt": {"name": "Asphalt", "hex_code": "#36454F", "printify_color_id": "asphalt", "popularity_rank": 27, "recommended": false},
+          "athletic_heather": {"name": "Athletic Heather", "hex_code": "#6C7B7F", "printify_color_id": "athletic_heather", "popularity_rank": 7, "recommended": true},
+          "autumn": {"name": "Autumn", "hex_code": "#CD853F", "printify_color_id": "autumn", "popularity_rank": 28, "recommended": false},
+          "baby_blue": {"name": "Baby Blue", "hex_code": "#89CFF0", "printify_color_id": "baby_blue", "popularity_rank": 8, "recommended": true},
+          "berry": {"name": "Berry", "hex_code": "#8E4585", "printify_color_id": "berry", "popularity_rank": 29, "recommended": false},
+          "black": {"name": "Black", "hex_code": "#000000", "printify_color_id": "black", "popularity_rank": 1, "recommended": true},
+          "black_heather": {"name": "Black Heather", "hex_code": "#2F2F2F", "printify_color_id": "black_heather", "popularity_rank": 9, "recommended": true},
+          "brown": {"name": "Brown", "hex_code": "#964B00", "printify_color_id": "brown", "popularity_rank": 30, "recommended": false},
+          "cardinal": {"name": "Cardinal", "hex_code": "#C41E3A", "printify_color_id": "cardinal", "popularity_rank": 10, "recommended": false},
+          "charity_pink": {"name": "Charity Pink", "hex_code": "#FF69B4", "printify_color_id": "charity_pink", "popularity_rank": 31, "recommended": false},
+          "dark_grey": {"name": "Dark Grey", "hex_code": "#A9A9A9", "printify_color_id": "dark_grey", "popularity_rank": 11, "recommended": true},
+          "dark_grey_heather": {"name": "Dark Grey Heather", "hex_code": "#808080", "printify_color_id": "dark_grey_heather", "popularity_rank": 12, "recommended": true},
+          "deep_heather": {"name": "Deep Heather", "hex_code": "#424242", "printify_color_id": "deep_heather", "popularity_rank": 13, "recommended": true},
+          "forest": {"name": "Forest", "hex_code": "#228B22", "printify_color_id": "forest", "popularity_rank": 14, "recommended": false},
+          "gold": {"name": "Gold", "hex_code": "#FFD700", "printify_color_id": "gold", "popularity_rank": 32, "recommended": false},
+          "heather_aqua": {"name": "Heather Aqua", "hex_code": "#7FFFD4", "printify_color_id": "heather_aqua", "popularity_rank": 33, "recommended": false},
+          "heather_clay": {"name": "Heather Clay", "hex_code": "#D2691E", "printify_color_id": "heather_clay", "popularity_rank": 34, "recommended": false},
+          "heather_columbia_blue": {"name": "Heather Columbia Blue", "hex_code": "#87CEEB", "printify_color_id": "heather_columbia_blue", "popularity_rank": 35, "recommended": false},
+          "heather_green": {"name": "Heather Green", "hex_code": "#90EE90", "printify_color_id": "heather_green", "popularity_rank": 36, "recommended": false},
+          "heather_ice_blue": {"name": "Heather Ice Blue", "hex_code": "#B0E0E6", "printify_color_id": "heather_ice_blue", "popularity_rank": 37, "recommended": false},
+          "heather_kelly": {"name": "Heather Kelly", "hex_code": "#4CBB17", "printify_color_id": "heather_kelly", "popularity_rank": 38, "recommended": false},
+          "heather_mauve": {"name": "Heather Mauve", "hex_code": "#E0B0FF", "printify_color_id": "heather_mauve", "popularity_rank": 39, "recommended": false},
+          "heather_mint": {"name": "Heather Mint", "hex_code": "#98FB98", "printify_color_id": "heather_mint", "popularity_rank": 40, "recommended": false},
+          "heather_navy": {"name": "Heather Navy", "hex_code": "#4F4F8F", "printify_color_id": "heather_navy", "popularity_rank": 15, "recommended": true},
+          "heather_olive": {"name": "Heather Olive", "hex_code": "#9CAF88", "printify_color_id": "heather_olive", "popularity_rank": 41, "recommended": false},
+          "heather_peach": {"name": "Heather Peach", "hex_code": "#FFCBA4", "printify_color_id": "heather_peach", "popularity_rank": 42, "recommended": false},
+          "heather_red": {"name": "Heather Red", "hex_code": "#FF6B6B", "printify_color_id": "heather_red", "popularity_rank": 16, "recommended": false},
+          "heather_team_purple": {"name": "Heather Team Purple", "hex_code": "#9370DB", "printify_color_id": "heather_team_purple", "popularity_rank": 43, "recommended": false},
+          "heather_true_royal": {"name": "Heather True Royal", "hex_code": "#4169E1", "printify_color_id": "heather_true_royal", "popularity_rank": 17, "recommended": false},
+          "kelly": {"name": "Kelly", "hex_code": "#4CBB17", "printify_color_id": "kelly", "popularity_rank": 18, "recommended": false},
+          "leaf": {"name": "Leaf", "hex_code": "#228B22", "printify_color_id": "leaf", "popularity_rank": 44, "recommended": false},
+          "light_blue": {"name": "Light Blue", "hex_code": "#ADD8E6", "printify_color_id": "light_blue", "popularity_rank": 19, "recommended": true},
+          "maroon": {"name": "Maroon", "hex_code": "#800000", "printify_color_id": "maroon", "popularity_rank": 20, "recommended": false},
+          "military_green": {"name": "Military Green", "hex_code": "#4B5320", "printify_color_id": "military_green", "popularity_rank": 21, "recommended": false},
+          "natural": {"name": "Natural", "hex_code": "#F5F5DC", "printify_color_id": "natural", "popularity_rank": 22, "recommended": true},
+          "navy": {"name": "Navy", "hex_code": "#000080", "printify_color_id": "navy", "popularity_rank": 2, "recommended": true},
+          "olive": {"name": "Olive", "hex_code": "#808000", "printify_color_id": "olive", "popularity_rank": 23, "recommended": false},
+          "orange": {"name": "Orange", "hex_code": "#FFA500", "printify_color_id": "orange", "popularity_rank": 45, "recommended": false},
+          "pink": {"name": "Pink", "hex_code": "#FFC0CB", "printify_color_id": "pink", "popularity_rank": 24, "recommended": false},
+          "red": {"name": "Red", "hex_code": "#FF0000", "printify_color_id": "red", "popularity_rank": 4, "recommended": true},
+          "silver": {"name": "Silver", "hex_code": "#C0C0C0", "printify_color_id": "silver", "popularity_rank": 46, "recommended": false},
+          "soft_cream": {"name": "Soft Cream", "hex_code": "#FFF8DC", "printify_color_id": "soft_cream", "popularity_rank": 47, "recommended": false},
+          "soft_pink": {"name": "Soft Pink", "hex_code": "#F8BBD0", "printify_color_id": "soft_pink", "popularity_rank": 48, "recommended": false},
+          "solid_black_blend": {"name": "Solid Black Blend", "hex_code": "#1C1C1C", "printify_color_id": "solid_black_blend", "popularity_rank": 49, "recommended": false},
+          "steel_blue": {"name": "Steel Blue", "hex_code": "#4682B4", "printify_color_id": "steel_blue", "popularity_rank": 50, "recommended": false},
+          "team_purple": {"name": "Team Purple", "hex_code": "#663399", "printify_color_id": "team_purple", "popularity_rank": 51, "recommended": false},
+          "true_royal": {"name": "True Royal", "hex_code": "#4169E1", "printify_color_id": "true_royal", "popularity_rank": 52, "recommended": false},
+          "turquoise": {"name": "Turquoise", "hex_code": "#40E0D0", "printify_color_id": "turquoise", "popularity_rank": 53, "recommended": false},
+          "white": {"name": "White", "hex_code": "#FFFFFF", "printify_color_id": "white", "popularity_rank": 3, "recommended": true},
+          "yellow": {"name": "Yellow", "hex_code": "#FFFF00", "printify_color_id": "yellow", "popularity_rank": 54, "recommended": false}
+        },
+        "sizes": {
+          "S": {"chest_width": 18, "body_length": 28, "sleeve_length": 8.5},
+          "M": {"chest_width": 20, "body_length": 29, "sleeve_length": 8.74},
+          "L": {"chest_width": 22, "body_length": 30, "sleeve_length": 9},
+          "XL": {"chest_width": 24, "body_length": 31, "sleeve_length": 9.25},
+          "2XL": {"chest_width": 26, "body_length": 32, "sleeve_length": 9.5},
+          "3XL": {"chest_width": 28, "body_length": 33, "sleeve_length": 9.75}
+        },
+        "variations": {
+          "crew_neck": {
+            "name": "Crew Neck",
+            "description": "Classic round neckline",
+            "default": true
+          }
+        }
+      },
+      "pricing": {
+        "base_cost": 8.50,
+        "currency": "USD",
+        "size_adjustments": {
+          "2XL": 2.00,
+          "3XL": 4.00
+        },
+        "color_adjustments": {
+          "heather_colors": 0.50,
+          "specialty_colors": 0.50
+        },
+        "suggested_retail_markup": 2.5
+      },
+      "automation_settings": {
+        "auto_publish": true,
+        "default_colors": ["white", "black", "navy", "ash", "athletic_heather", "baby_blue", "dark_grey", "heather_navy", "light_blue", "natural", "red"],
+        "default_sizes": ["S", "M", "L", "XL"],
+        "seo_keywords": ["t-shirt", "unisex", "cotton", "bella canvas", "short sleeve"],
+        "category_tags": ["apparel", "casual", "everyday"]
+      }
+    },
+    "sweatshirt_gildan_18000": {
+      "metadata": {
+        "name": "Unisex Heavy Blend™ Crewneck Sweatshirt",
+        "brand": "Gildan",
+        "model": "18000",
+        "category": "apparel",
+        "subcategory": "sweatshirts",
+        "status": "active",
+        "validation_status": "api_verified",
+        "total_variants": 120
+      },
+      "printify_config": {
+        "blueprint_id": 49,
+        "blueprint_title": "Unisex Heavy Blend™ Crewneck Sweatshirt",
+        "print_provider_id": 29,
+        "print_provider_name": "Monster Digital",
+        "print_provider_location": {
+          "address": "16085 NW 52ND Avenue",
+          "city": "Miami",
+          "state": "FL",
+          "zip": "33014",
+          "country": "US"
+        },
+        "alternative_providers": [
+          {"id": 51, "name": "FYBY"},
+          {"id": 66, "name": "Prima Printing"},
+          {"id": 99, "name": "Printify Choice"},
+          {"id": 87, "name": "Print Logistic"},
+          {"id": 50, "name": "Underground Threads"},
+          {"id": 26, "name": "Textildruck Europa"},
+          {"id": 34, "name": "The Print Bar"},
+          {"id": 42, "name": "Drive Fulfillment"},
+          {"id": 61, "name": "Dimona Tee"},
+          {"id": 41, "name": "Duplium"},
+          {"id": 72, "name": "Print Clever"},
+          {"id": 6, "name": "T Shirt and Sons"},
+          {"id": 3, "name": "Marco Fine Arts"},
+          {"id": 39, "name": "SwiftPOD"},
+          {"id": 27, "name": "Print Geek"},
+          {"id": 217, "name": "Fulfill Engine"}
+        ]
+      },
+      "product_specifications": {
+        "description": "Ideal for any situation, a unisex heavy blend crewneck sweatshirt is pure comfort. Made from polyester and cotton combination that helps designs come out looking fresh and beautiful.",
+        "fabric_details": {
+          "material": "50% cotton, 50% polyester",
+          "weight": "8.0 oz/yd² (271 g/m²)",
+          "fit": "Classic fit",
+          "features": ["Double-needle stitching", "Set-in sleeves", "1x1 rib collar", "Cuffs and waistband"]
+        },
+        "care_instructions": ["Machine wash warm", "Tumble dry medium", "Do not bleach", "Iron medium heat"]
+      },
+      "available_options": {
+        "colors": {
+          "ash": {"name": "Ash", "hex_code": "#B2BEB5", "printify_color_id": "ash", "popularity_rank": 3, "recommended": true},
+          "black": {"name": "Black", "hex_code": "#000000", "printify_color_id": "black", "popularity_rank": 1, "recommended": true},
+          "dark_heather": {"name": "Dark Heather", "hex_code": "#424242", "printify_color_id": "dark_heather", "popularity_rank": 4, "recommended": true},
+          "forest_green": {"name": "Forest Green", "hex_code": "#228B22", "printify_color_id": "forest_green", "popularity_rank": 8, "recommended": false},
+          "gold": {"name": "Gold", "hex_code": "#FFD700", "printify_color_id": "gold", "popularity_rank": 15, "recommended": false},
+          "graphite_heather": {"name": "Graphite Heather", "hex_code": "#36454F", "printify_color_id": "graphite_heather", "popularity_rank": 5, "recommended": true},
+          "heliconia": {"name": "Heliconia", "hex_code": "#FF69B4", "printify_color_id": "heliconia", "popularity_rank": 16, "recommended": false},
+          "irish_green": {"name": "Irish Green", "hex_code": "#009A49", "printify_color_id": "irish_green", "popularity_rank": 17, "recommended": false},
+          "light_blue": {"name": "Light Blue", "hex_code": "#ADD8E6", "printify_color_id": "light_blue", "popularity_rank": 9, "recommended": true},
+          "light_pink": {"name": "Light Pink", "hex_code": "#FFB6C1", "printify_color_id": "light_pink", "popularity_rank": 18, "recommended": false},
+          "maroon": {"name": "Maroon", "hex_code": "#800000", "printify_color_id": "maroon", "popularity_rank": 10, "recommended": false},
+          "military_green": {"name": "Military Green", "hex_code": "#4B5320", "printify_color_id": "military_green", "popularity_rank": 11, "recommended": false},
+          "navy": {"name": "Navy", "hex_code": "#000080", "printify_color_id": "navy", "popularity_rank": 2, "recommended": true},
+          "orange": {"name": "Orange", "hex_code": "#FFA500", "printify_color_id": "orange", "popularity_rank": 19, "recommended": false},
+          "purple": {"name": "Purple", "hex_code": "#800080", "printify_color_id": "purple", "popularity_rank": 12, "recommended": false},
+          "red": {"name": "Red", "hex_code": "#FF0000", "printify_color_id": "red", "popularity_rank": 6, "recommended": true},
+          "royal": {"name": "Royal", "hex_code": "#4169E1", "printify_color_id": "royal", "popularity_rank": 13, "recommended": false},
+          "sand": {"name": "Sand", "hex_code": "#F4A460", "printify_color_id": "sand", "popularity_rank": 20, "recommended": false},
+          "sport_grey": {"name": "Sport Grey", "hex_code": "#808080", "printify_color_id": "sport_grey", "popularity_rank": 7, "recommended": true},
+          "white": {"name": "White", "hex_code": "#FFFFFF", "printify_color_id": "white", "popularity_rank": 14, "recommended": true}
+        },
+        "sizes": {
+          "S": {"chest_width": 20, "body_length": 27, "sleeve_length": 20},
+          "M": {"chest_width": 22, "body_length": 28, "sleeve_length": 21},
+          "L": {"chest_width": 24, "body_length": 29, "sleeve_length": 22},
+          "XL": {"chest_width": 26, "body_length": 30, "sleeve_length": 23},
+          "2XL": {"chest_width": 28, "body_length": 31, "sleeve_length": 24},
+          "3XL": {"chest_width": 30, "body_length": 32, "sleeve_length": 25}
+        },
+        "variations": {
+          "crewneck": {
+            "name": "Crewneck",
+            "description": "Classic round neckline sweatshirt",
+            "default": true
+          }
+        }
+      },
+      "pricing": {
+        "base_cost": 18.50,
+        "currency": "USD",
+        "size_adjustments": {
+          "2XL": 3.00,
+          "3XL": 5.00
+        },
+        "color_adjustments": {
+          "heather_colors": 1.00,
+          "specialty_colors": 1.00
+        },
+        "suggested_retail_markup": 2.2
+      },
+      "automation_settings": {
+        "auto_publish": true,
+        "default_colors": ["white", "black", "navy", "ash", "dark_heather", "graphite_heather", "light_blue", "sport_grey"],
+        "default_sizes": ["S", "M", "L", "XL"],
+        "seo_keywords": ["sweatshirt", "unisex", "heavy blend", "gildan", "crewneck"],
+        "category_tags": ["apparel", "casual", "warm", "comfort"]
+      }
+    },
+    "poster_matte_sensaria": {
+      "metadata": {
+        "name": "Matte Posters",
+        "brand": "Generic brand",
+        "model": "Standard",
+        "category": "print",
+        "subcategory": "posters",
+        "status": "active",
+        "validation_status": "api_verified",
+        "notes": "Sensaria provider confirmed available - user correction validated"
+      },
+      "printify_config": {
+        "blueprint_id": 983,
+        "blueprint_title": "Matte Posters",
+        "print_provider_id": 2,
+        "print_provider_name": "Sensaria",
+        "print_provider_location": {
+          "address": "120 9th Ave",
+          "city": "Longmont",
+          "state": "CO",
+          "zip": "80501",
+          "country": "US"
+        },
+        "alternative_providers": [
+          {"id": 95, "name": "Ideju Druka"}
+        ],
+        "correction_applied": {
+          "original_provider": "Ideju Druka",
+          "corrected_provider": "Sensaria",
+          "reason": "User verification confirmed Sensaria availability"
+        }
+      },
+      "product_specifications": {
+        "description": "High-quality matte finish posters perfect for home decor, office spaces, and art displays. Printed on premium paper with excellent color reproduction.",
+        "material_details": {
+          "paper_type": "Premium matte paper",
+          "finish": "Matte",
+          "thickness": "0.26 mm (10.3 mil)",
+          "paper_weight": "189 g/m²",
+          "features": ["Fade-resistant", "Fingerprint resistant", "Ready to frame"]
+        },
+        "care_instructions": ["Handle with care", "Avoid direct sunlight", "Frame for best preservation"]
+      },
+      "available_options": {
+        "colors": {
+          "white": {
+            "name": "White",
+            "hex_code": "#FFFFFF",
+            "printify_color_id": "white",
+            "popularity_rank": 1,
+            "recommended": true
+          }
+        },
+        "sizes": {
+          "9x11_v": {"width": 9, "height": 11, "unit": "inches", "aspect_ratio": "9:11", "orientation": "vertical"},
+          "11x9_h": {"width": 11, "height": 9, "unit": "inches", "aspect_ratio": "11:9", "orientation": "horizontal"},
+          "11x14_v": {"width": 11, "height": 14, "unit": "inches", "aspect_ratio": "11:14", "orientation": "vertical"},
+          "14x11_h": {"width": 14, "height": 11, "unit": "inches", "aspect_ratio": "14:11", "orientation": "horizontal"},
+          "12x18_v": {"width": 12, "height": 18, "unit": "inches", "aspect_ratio": "2:3", "orientation": "vertical"},
+          "18x12_h": {"width": 18, "height": 12, "unit": "inches", "aspect_ratio": "3:2", "orientation": "horizontal"},
+          "16x20_v": {"width": 16, "height": 20, "unit": "inches", "aspect_ratio": "4:5", "orientation": "vertical"},
+          "20x16_h": {"width": 20, "height": 16, "unit": "inches", "aspect_ratio": "5:4", "orientation": "horizontal"},
+          "18x24_v": {"width": 18, "height": 24, "unit": "inches", "aspect_ratio": "3:4", "orientation": "vertical"},
+          "24x18_h": {"width": 24, "height": 18, "unit": "inches", "aspect_ratio": "4:3", "orientation": "horizontal"},
+          "20x30_v": {"width": 20, "height": 30, "unit": "inches", "aspect_ratio": "2:3", "orientation": "vertical"},
+          "30x20_h": {"width": 30, "height": 20, "unit": "inches", "aspect_ratio": "3:2", "orientation": "horizontal"},
+          "24x36_v": {"width": 24, "height": 36, "unit": "inches", "aspect_ratio": "2:3", "orientation": "vertical"},
+          "36x24_h": {"width": 36, "height": 24, "unit": "inches", "aspect_ratio": "3:2", "orientation": "horizontal"}
+        },
+        "variations": {
+          "standard": {
+            "name": "Standard",
+            "description": "Standard matte finish poster",
+            "default": true
+          }
+        }
+      },
+      "pricing": {
+        "base_cost": 12.00,
+        "currency": "USD",
+        "size_adjustments": {
+          "11x14_v": 3.00,
+          "14x11_h": 3.00,
+          "12x18_v": 4.00,
+          "18x12_h": 4.00,
+          "16x20_v": 8.00,
+          "20x16_h": 8.00,
+          "18x24_v": 12.00,
+          "24x18_h": 12.00,
+          "20x30_v": 16.00,
+          "30x20_h": 16.00,
+          "24x36_v": 20.00,
+          "36x24_h": 20.00
+        },
+        "suggested_retail_markup": 3.0
+      },
+      "automation_settings": {
+        "auto_publish": true,
+        "default_colors": ["white"],
+        "default_sizes": ["11x14_v", "16x20_v", "18x24_v"],
+        "seo_keywords": ["poster", "matte", "print", "wall art", "home decor"],
+        "category_tags": ["print", "art", "decor", "poster"]
+      }
+    }
+  },
+  "global_settings": {
+    "api_configuration": {
+      "printify_shop_id": "18472557",
+      "api_version": "v1",
+      "base_url": "https://api.printify.com",
+      "rate_limit": {
+        "requests_per_minute": 60,
+        "burst_limit": 10
+      }
+    },
+    "quality_standards": {
+      "minimum_dpi": 300,
+      "preferred_formats": ["PNG", "JPG", "SVG"],
+      "max_file_size_mb": 50,
+      "color_profile": "sRGB"
+    },
+    "automation_defaults": {
+      "publish_immediately": false,
+      "enable_mockups": true,
+      "generate_variants": true,
+      "seo_optimization": true
+    }
+  },
+  "validation_schema": {
+    "required_fields": ["metadata", "printify_config", "available_options", "pricing"],
+    "metadata_required": ["name", "brand", "category", "status"],
+    "printify_config_required": ["blueprint_id", "print_provider_id"],
+    "pricing_required": ["base_cost", "currency"]
+  }
+}

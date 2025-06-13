@@ -1,0 +1,190 @@
+
+{
+  "automations": [
+    {
+      "name": "New Product Setup",
+      "description": "Automatically create variations when a new product is added",
+      "trigger": {
+        "type": "record_created",
+        "table": "Products"
+      },
+      "conditions": [
+        {
+          "field": "Product Type",
+          "operator": "is_not_empty"
+        }
+      ],
+      "actions": [
+        {
+          "type": "create_records",
+          "table": "Variations",
+          "records_to_create": "script",
+          "script": "// Create default variations based on product type\nlet productType = input.config().productType;\nlet productName = input.config().productName;\nlet basePrice = input.config().basePrice;\nlet markup = input.config().markupPercentage;\n\nlet colors = ['Black', 'White', 'Navy', 'Gray'];\nlet sizes = productType === 'Poster' ? ['12x16', '16x20'] : \n           productType === 'Mug' ? ['11oz', '15oz'] : \n           ['S', 'M', 'L', 'XL'];\n\nlet variations = [];\nfor (let color of colors) {\n  for (let size of sizes) {\n    variations.push({\n      'Product': [input.config().productRecordId],\n      'Color': color,\n      'Size': size,\n      'Availability': 'Available',\n      'Mockup Status': 'Pending',\n      'Variation Price': basePrice * (1 + markup/100)\n    });\n  }\n}\n\noutput.set('variations', variations);"
+        },
+        {
+          "type": "update_record",
+          "table": "Products",
+          "record_id": "trigger_record_id",
+          "fields": {
+            "Status": "Design"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mockup Generation Trigger",
+      "description": "Create mockup records when variations are created",
+      "trigger": {
+        "type": "record_created",
+        "table": "Variations"
+      },
+      "conditions": [
+        {
+          "field": "Product",
+          "operator": "is_not_empty"
+        }
+      ],
+      "actions": [
+        {
+          "type": "create_records",
+          "table": "Mockups",
+          "records_to_create": "script",
+          "script": "// Create mockup records for each type\nlet variationId = input.config().variationRecordId;\nlet mockupTypes = ['Front', 'Back', 'Lifestyle'];\n\nlet mockups = [];\nfor (let type of mockupTypes) {\n  mockups.push({\n    'Variation': [variationId],\n    'Mockup Type': type,\n    'Generation Status': 'Pending',\n    'Quality Score': 0,\n    'Is Primary': type === 'Front'\n  });\n}\n\noutput.set('mockups', mockups);"
+        },
+        {
+          "type": "update_record",
+          "table": "Variations",
+          "record_id": "trigger_record_id",
+          "fields": {
+            "Mockup Status": "Generating"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Status Progression",
+      "description": "Update workflow when product status changes",
+      "trigger": {
+        "type": "record_updated",
+        "table": "Products",
+        "fields": ["Status"]
+      },
+      "conditions": [
+        {
+          "field": "Status",
+          "operator": "is_not_empty"
+        }
+      ],
+      "actions": [
+        {
+          "type": "conditional_action",
+          "condition": {
+            "field": "Status",
+            "operator": "equals",
+            "value": "Product"
+          },
+          "action": {
+            "type": "create_record",
+            "table": "Listings",
+            "fields": {
+              "Product": "trigger_record_id",
+              "Listing Title": "script:input.config().productName + ' - Premium Quality'",
+              "Publication Status": "Draft",
+              "Category": "script:input.config().productType === 'Poster' ? 'Art' : 'Clothing'",
+              "Price": "script:input.config().finalPrice",
+              "Quantity": 50
+            }
+          }
+        },
+        {
+          "type": "send_notification",
+          "message": "script:'Product ' + input.config().productName + ' status updated to ' + input.config().status",
+          "recipients": ["admin@sea-e.com"]
+        }
+      ]
+    },
+    {
+      "name": "Error Handling",
+      "description": "Handle errors and send notifications",
+      "trigger": {
+        "type": "record_updated",
+        "table": "Products",
+        "fields": ["Error Log"]
+      },
+      "conditions": [
+        {
+          "field": "Error Log",
+          "operator": "is_not_empty"
+        }
+      ],
+      "actions": [
+        {
+          "type": "update_record",
+          "table": "Products",
+          "record_id": "trigger_record_id",
+          "fields": {
+            "Status": "Error",
+            "Priority": "High"
+          }
+        },
+        {
+          "type": "send_notification",
+          "message": "script:'ERROR: Product ' + input.config().productName + ' - ' + input.config().errorLog",
+          "recipients": ["admin@sea-e.com"],
+          "urgency": "high"
+        }
+      ]
+    },
+    {
+      "name": "Batch Processing Setup",
+      "description": "Organize products into batches for processing",
+      "trigger": {
+        "type": "record_updated",
+        "table": "Products",
+        "fields": ["Batch Group"]
+      },
+      "conditions": [
+        {
+          "field": "Batch Group",
+          "operator": "is_not_empty"
+        }
+      ],
+      "actions": [
+        {
+          "type": "update_record",
+          "table": "Products",
+          "record_id": "trigger_record_id",
+          "fields": {
+            "Priority": "script:input.config().batchGroup.includes('001') ? 'High' : 'Medium'"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mockup Completion Update",
+      "description": "Update variation status when mockups are complete",
+      "trigger": {
+        "type": "record_updated",
+        "table": "Mockups",
+        "fields": ["Generation Status"]
+      },
+      "conditions": [
+        {
+          "field": "Generation Status",
+          "operator": "equals",
+          "value": "Complete"
+        }
+      ],
+      "actions": [
+        {
+          "type": "update_linked_record",
+          "table": "Variations",
+          "link_field": "Variation",
+          "fields": {
+            "Mockup Status": "Complete"
+          }
+        }
+      ]
+    }
+  ]
+}
