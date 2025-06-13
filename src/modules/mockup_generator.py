@@ -154,7 +154,7 @@ class MockupGenerator:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
         # Load Printify specifications
-        self.specs_path = Path(__file__).parent.parent.parent / "phase1" / "printify_specs.json"
+        self.specs_path = Path(__file__).parent.parent.parent / "config" / "product_blueprints.json"
         self.printify_specs = self._load_printify_specs()
         
         # Define product configurations based on Printify research
@@ -167,12 +167,12 @@ class MockupGenerator:
         logger.info(f"MockupGenerator initialized with output directory: {self.output_dir}")
     
     def _load_printify_specs(self) -> Dict[str, Any]:
-        """Load Printify specifications from Phase 1 research."""
+        """Load Printify specifications from product blueprints configuration."""
         try:
             if self.specs_path.exists():
                 with open(self.specs_path, 'r') as f:
                     specs = json.load(f)
-                logger.info("Loaded Printify specifications from Phase 1 research")
+                logger.info("Loaded Printify specifications from product blueprints configuration")
                 return specs
             else:
                 logger.warning(f"Printify specs not found at {self.specs_path}, using defaults")
