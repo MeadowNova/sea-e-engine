@@ -44,3 +44,12 @@ coverage.json
 
 # Credentials
 credentials/
+
+# Generated mockups and output files
+output/
+*.png
+*.jpg
+*.jpeg
+!assets/**/*.png
+!assets/**/*.jpg
+!assets/**/*.jpeg
