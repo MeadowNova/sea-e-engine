@@ -286,9 +286,102 @@ class PrintifyAPIClient:
                 self._publish_product(product_id)
             
             return str(product_id)
-            
+
         except Exception as e:
             self.logger.error(f"Failed to create product: {e}")
+            raise
+
+    def create_product_with_precise_placement(self, title: str, description: str,
+                                            blueprint_id: int, print_provider_id: int,
+                                            design_file_path: str, coordinate_config: dict,
+                                            colors: List[str] = None, variations: List[str] = None) -> str:
+        """
+        Create a product with precise design placement using coordinate mapping.
+
+        Args:
+            title: Product title
+            description: Product description
+            blueprint_id: Printify blueprint ID
+            print_provider_id: Print provider ID
+            design_file_path: Path to design file
+            coordinate_config: Precise coordinate configuration from coordinate mapper
+            colors: List of color names
+            variations: List of variation names
+
+        Returns:
+            str: Created product ID
+        """
+        try:
+            self.logger.info(f"Creating Printify product with precise placement: {title}")
+
+            # Upload design image
+            design_image_id = self.upload_image(design_file_path)
+
+            # Get blueprint details to understand variants
+            blueprint_details = self.get_blueprint_details(blueprint_id)
+
+            # Build variants
+            variants = self._build_variants(blueprint_details, colors, variations)
+            variant_ids = [variant["id"] for variant in variants]
+
+            # Build print areas with precise coordinates
+            print_areas = []
+            printify_coords = coordinate_config.get("printify_coordinates", {})
+
+            # If no precise coordinates provided, use default center placement
+            if not printify_coords:
+                printify_coords = {"front": {"x": 0.5, "y": 0.5, "scale": 1.0, "angle": 0}}
+
+            for position, coords in printify_coords.items():
+                print_area = {
+                    "variant_ids": variant_ids,
+                    "placeholders": [
+                        {
+                            "position": position,
+                            "images": [
+                                {
+                                    "id": design_image_id,
+                                    "x": coords["x"],
+                                    "y": coords["y"],
+                                    "scale": coords["scale"],
+                                    "angle": coords.get("angle", 0)
+                                }
+                            ]
+                        }
+                    ]
+                }
+                print_areas.append(print_area)
+
+            # Build product data with precise placement
+            product_data = {
+                "title": title,
+                "description": description,
+                "blueprint_id": blueprint_id,
+                "print_provider_id": print_provider_id,
+                "variants": variants,
+                "print_areas": print_areas
+            }
+
+            # Create product
+            endpoint = f"/shops/{self.shop_id}/products.json"
+            response = self.make_request("POST", endpoint, data=product_data)
+
+            if response.status_code not in [200, 201]:
+                raise Exception(f"Failed to create product: {response.status_code} - {response.text}")
+
+            product_response = response.json()
+            product_id = product_response.get("id")
+
+            self.logger.info(f"Product created with precise placement, ID: {product_id}")
+
+            # Publish product
+            if product_id:
+                self._publish_product(product_id)
+
+            return str(product_id)
+
+        except Exception as e:
+            self.logger.error(f"Failed to create product with precise placement: {e}")
             raise
     
     def _build_variants(self, blueprint_details: Dict, colors: List[str] = None,

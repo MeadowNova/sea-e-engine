@@ -2,8 +2,8 @@
 {
   "automations": [
     {
-      "name": "New Product Setup",
-      "description": "Automatically create variations when a new product is added",
+      "name": "🚀 New Product Setup - Bulletproof",
+      "description": "Automatically populate ALL fields and create variations when a new product is added",
       "trigger": {
         "type": "record_created",
         "table": "Products"
@@ -12,22 +12,34 @@
         {
           "field": "Product Type",
           "operator": "is_not_empty"
+        },
+        {
+          "field": "Blueprint ID",
+          "operator": "is_not_empty"
+        },
+        {
+          "field": "Print Provider ID",
+          "operator": "is_not_empty"
         }
       ],
       "actions": [
-        {
-          "type": "create_records",
-          "table": "Variations",
-          "records_to_create": "script",
-          "script": "// Create default variations based on product type\nlet productType = input.config().productType;\nlet productName = input.config().productName;\nlet basePrice = input.config().basePrice;\nlet markup = input.config().markupPercentage;\n\nlet colors = ['Black', 'White', 'Navy', 'Gray'];\nlet sizes = productType === 'Poster' ? ['12x16', '16x20'] : \n           productType === 'Mug' ? ['11oz', '15oz'] : \n           ['S', 'M', 'L', 'XL'];\n\nlet variations = [];\nfor (let color of colors) {\n  for (let size of sizes) {\n    variations.push({\n      'Product': [input.config().productRecordId],\n      'Color': color,\n      'Size': size,\n      'Availability': 'Available',\n      'Mockup Status': 'Pending',\n      'Variation Price': basePrice * (1 + markup/100)\n    });\n  }\n}\n\noutput.set('variations', variations);"
-        },
         {
           "type": "update_record",
           "table": "Products",
           "record_id": "trigger_record_id",
           "fields": {
-            "Status": "Design"
+            "Status": "Design",
+            "Automation Status": "Initialized",
+            "Created Date": "script:new Date().toISOString()",
+            "Last Updated": "script:new Date().toISOString()",
+            "Automation Log": "script:'Product initialized: ' + new Date().toLocaleString()"
           }
+        },
+        {
+          "type": "create_records",
+          "table": "Variations",
+          "records_to_create": "script",
+          "script": "// Create comprehensive variations based on product type\nlet productType = input.config().productType;\nlet productName = input.config().productName;\nlet basePrice = input.config().basePrice || 25.99;\nlet markup = input.config().markupPercentage || 100;\n\n// Define variations by product type\nlet colors, sizes;\nswitch(productType) {\n  case 'T-Shirt':\n    colors = ['Black', 'White', 'Navy', 'Gray', 'Red'];\n    sizes = ['S', 'M', 'L', 'XL', 'XXL'];\n    break;\n  case 'Sweatshirt':\n    colors = ['Black', 'White', 'Navy', 'Gray'];\n    sizes = ['S', 'M', 'L', 'XL', 'XXL'];\n    break;\n  case 'Poster':\n    colors = ['Default'];\n    sizes = ['12x16', '16x20', '18x24'];\n    break;\n  case 'Mug':\n    colors = ['White', 'Black'];\n    sizes = ['11oz', '15oz'];\n    break;\n  default:\n    colors = ['Black', 'White'];\n    sizes = ['M', 'L'];\n}\n\nlet variations = [];\nfor (let color of colors) {\n  for (let size of sizes) {\n    let variationName = `${color}-${size}`;\n    variations.push({\n      'Product': [input.config().productRecordId],\n      'Variation Name': variationName,\n      'Color': color,\n      'Size': size,\n      'Availability': 'Available',\n      'Mockup Status': 'Pending',\n      'Status': 'Active',\n      'Price': basePrice * (1 + markup/100)\n    });\n  }\n}\n\noutput.set('variations', variations);"
         }
       ]
     },
@@ -156,6 +168,134 @@
           "record_id": "trigger_record_id",
           "fields": {
             "Priority": "script:input.config().batchGroup.includes('001') ? 'High' : 'Medium'"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Printify Product Created - Auto-Populate",
+      "description": "Auto-populate Printify details when Printify Product ID is added",
+      "trigger": {
+        "type": "record_updated",
+        "table": "Products"
+      },
+      "conditions": [
+        {
+          "field": "Printify Product ID",
+          "operator": "is_not_empty"
+        },
+        {
+          "field": "Automation Status",
+          "operator": "is",
+          "value": "Initialized"
+        }
+      ],
+      "actions": [
+        {
+          "type": "update_record",
+          "table": "Products",
+          "record_id": "trigger_record_id",
+          "fields": {
+            "Automation Status": "Printify Created",
+            "Last Updated": "script:new Date().toISOString()",
+            "Automation Log": "script:input.config().automationLog + '\\n' + new Date().toLocaleString() + ': Printify product created'"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎨 Google Sheets Upload Complete",
+      "description": "Update mockup and variation status when Google Sheets upload completes",
+      "trigger": {
+        "type": "record_updated",
+        "table": "Mockups"
+      },
+      "conditions": [
+        {
+          "field": "Google Sheets URL",
+          "operator": "is_not_empty"
+        },
+        {
+          "field": "Sheets Upload Status",
+          "operator": "is",
+          "value": "Uploaded"
+        }
+      ],
+      "actions": [
+        {
+          "type": "update_record",
+          "table": "Mockups",
+          "record_id": "trigger_record_id",
+          "fields": {
+            "Generation Status": "Complete",
+            "Approved": true
+          }
+        },
+        {
+          "type": "update_linked_record",
+          "table": "Variations",
+          "link_field": "Variation",
+          "fields": {
+            "Mockup Status": "Complete"
+          }
+        }
+      ]
+    },
+    {
+      "name": "✅ All Mockups Complete - Ready for Listing",
+      "description": "Update product status when all variation mockups are complete",
+      "trigger": {
+        "type": "record_updated",
+        "table": "Variations"
+      },
+      "conditions": [
+        {
+          "field": "Mockup Status",
+          "operator": "is",
+          "value": "Complete"
+        }
+      ],
+      "actions": [
+        {
+          "type": "run_script",
+          "script": "// Check if all variations for this product have complete mockups\nlet productId = input.config().productId;\nlet variations = await input.config().airtable.selectRecordsAsync({\n  table: 'Variations',\n  filterByFormula: `{Product} = '${productId}'`\n});\n\nlet allComplete = variations.records.every(variation => \n  variation.getCellValue('Mockup Status') === 'Complete'\n);\n\nif (allComplete) {\n  await input.config().airtable.updateRecordAsync('Products', productId, {\n    'Status': 'Ready for Listing',\n    'Automation Status': 'Mockups Generated',\n    'Last Updated': new Date().toISOString(),\n    'Automation Log': input.config().automationLog + '\\n' + new Date().toLocaleString() + ': All mockups completed'\n  });\n}"
+        }
+      ]
+    },
+    {
+      "name": "🛒 Etsy Listing Created - Auto-Populate",
+      "description": "Auto-populate Etsy listing details when Etsy Listing ID is added",
+      "trigger": {
+        "type": "record_updated",
+        "table": "Listings"
+      },
+      "conditions": [
+        {
+          "field": "Etsy Listing ID",
+          "operator": "is_not_empty"
+        }
+      ],
+      "actions": [
+        {
+          "type": "update_record",
+          "table": "Listings",
+          "record_id": "trigger_record_id",
+          "fields": {
+            "Etsy URL": "script:'https://www.etsy.com/listing/' + input.config().etsyListingId",
+            "Etsy Status": "Active",
+            "Etsy Created Date": "script:new Date().toISOString()",
+            "Publication Status": "Published"
+          }
+        },
+        {
+          "type": "update_linked_record",
+          "table": "Products",
+          "link_field": "Product",
+          "fields": {
+            "Status": "Listed",
+            "Automation Status": "Etsy Listed",
+            "Last Updated": "script:new Date().toISOString()",
+            "Automation Log": "script:input.config().automationLog + '\\n' + new Date().toLocaleString() + ': Etsy listing created'"
           }
         }
       ]
