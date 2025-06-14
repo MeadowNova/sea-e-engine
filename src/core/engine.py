@@ -37,6 +37,7 @@ from core.logger import setup_logger
 from api.etsy import EtsyAPIClient
 from api.printify import PrintifyAPIClient
 from api.airtable_client import AirtableClient
+from api.google_sheets_client import GoogleSheetsClient
 from data.airtable_models import (
     Product, Variation, Mockup, Listing, Collection,
     ProductStatus, Priority, AirtableDataManager
@@ -156,10 +157,13 @@ class SEAEngine:
             # Initialize Airtable client
             self.airtable_client = AirtableClient()
             self.data_manager = AirtableDataManager(self.airtable_client)
-            
-            # Initialize mockup generator
+
+            # Initialize Google Sheets client
+            self.sheets_client = GoogleSheetsClient()
+
+            # Initialize mockup generator with Google Sheets integration
             self.mockup_generator = MockupGenerator(str(self.output_dir))
-            
+
             # Initialize state manager
             self.state_manager = WorkflowStateManager(str(self.logs_dir))
             
@@ -183,17 +187,22 @@ class SEAEngine:
             etsy_valid = self.etsy_client.test_connection()
             printify_valid = self.printify_client.test_connection()
             airtable_valid = self.airtable_client.test_connection()
+            sheets_valid = self.sheets_client.test_connection()
 
             if not etsy_valid:
                 self.logger.error("Etsy API connection failed")
                 return False
-            
+
             if not printify_valid:
                 self.logger.error("Printify API connection failed")
                 return False
-            
+
             if not airtable_valid:
                 self.logger.error("Airtable API connection failed")
+                return False
+
+            if not sheets_valid:
+                self.logger.error("Google Sheets API connection failed")
                 return False
             
             # Validate configurations

@@ -1,0 +1,65 @@
+{
+  "spreadsheet_settings": {
+    "naming_convention": "SEA-E Mockups - {product_name}",
+    "folder_naming": "SEA-E Mockups - {product_name}",
+    "auto_organize": true,
+    "create_separate_sheets": true
+  },
+  "upload_settings": {
+    "image_quality": 95,
+    "max_file_size_mb": 10,
+    "supported_formats": [".png", ".jpg", ".jpeg"],
+    "resize_large_images": true,
+    "max_dimension": 2000
+  },
+  "worksheet_structure": {
+    "default_worksheet_name": "Mockups",
+    "headers": [
+      "Image",
+      "Filename", 
+      "Variation",
+      "Upload Date",
+      "Shareable URL",
+      "File Size",
+      "Status"
+    ],
+    "image_column": "A",
+    "url_column": "E",
+    "status_column": "G"
+  },
+  "organization": {
+    "group_by_product": true,
+    "group_by_collection": false,
+    "separate_folders_by_type": true,
+    "folder_structure": {
+      "root": "SEA-E Engine Mockups",
+      "products": "{product_name}",
+      "variations": "{product_name}/{variation_type}"
+    }
+  },
+  "sharing_settings": {
+    "make_public": true,
+    "share_with_domain": false,
+    "allow_comments": false,
+    "allow_downloads": true
+  },
+  "batch_settings": {
+    "max_concurrent_uploads": 5,
+    "retry_attempts": 3,
+    "retry_delay_seconds": 2,
+    "rate_limit_delay": 0.1
+  },
+  "metadata_tracking": {
+    "track_upload_date": true,
+    "track_file_size": true,
+    "track_variation_info": true,
+    "track_generation_settings": true,
+    "track_quality_score": false
+  },
+  "integration_settings": {
+    "update_airtable": true,
+    "airtable_url_field": "google_sheets_url",
+    "airtable_status_field": "sheets_upload_status",
+    "airtable_date_field": "sheets_upload_date"
+  }
+}

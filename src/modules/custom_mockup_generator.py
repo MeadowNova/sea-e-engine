@@ -26,6 +26,7 @@ import sys
 # Add utils to path for output manager
 sys.path.append(str(Path(__file__).parent.parent))
 from utils.output_manager import OutputManager
+from modules.sheets_mockup_uploader import SheetsMockupUploader
 
 # Set up logging
 logger = logging.getLogger("custom_mockup_generator")
@@ -79,7 +80,8 @@ class CustomMockupGenerator:
     """
     
     def __init__(self, assets_dir: str = "assets", output_dir: str = "output",
-                 config_file: str = "config/mockup_templates.json", auto_manage: bool = True):
+                 config_file: str = "config/mockup_templates.json", auto_manage: bool = True,
+                 enable_sheets_upload: bool = False, airtable_client=None):
         """
         Initialize the custom mockup generator.
 
@@ -88,6 +90,8 @@ class CustomMockupGenerator:
             output_dir: Directory for generated mockups
             config_file: Path to template configuration file
             auto_manage: Enable automatic file management and cleanup
+            enable_sheets_upload: Enable Google Sheets upload integration
+            airtable_client: Existing Airtable client for integration
         """
         self.assets_dir = Path(assets_dir)
         self.output_dir = Path(output_dir)
@@ -105,6 +109,17 @@ class CustomMockupGenerator:
 
         # Load template configurations
         self.templates = self._load_templates()
+
+        # Initialize Google Sheets uploader if enabled
+        self.enable_sheets_upload = enable_sheets_upload
+        self.sheets_uploader = None
+        if enable_sheets_upload:
+            try:
+                self.sheets_uploader = SheetsMockupUploader(airtable_client=airtable_client)
+                logger.info("Google Sheets upload integration enabled")
+            except Exception as e:
+                logger.warning(f"Failed to initialize Google Sheets uploader: {e}")
+                self.enable_sheets_upload = False
 
         logger.info(f"Initialized CustomMockupGenerator with {len(self.templates)} templates")
     
@@ -281,18 +296,22 @@ class CustomMockupGenerator:
         return result
     
     def generate_mockup(self, product_type: str, design_path: str, template_name: str = None,
-                       custom_position: Tuple[int, int] = None) -> Dict[str, Any]:
+                       custom_position: Tuple[int, int] = None, upload_to_sheets: bool = None,
+                       variation_info: Dict[str, str] = None, airtable_record_id: str = None) -> Dict[str, Any]:
         """
-        Generate a single mockup.
-        
+        Generate a single mockup with optional Google Sheets upload.
+
         Args:
             product_type: Type of product ('tshirts', 'sweatshirts', 'posters')
             design_path: Path to design file
             template_name: Specific template name (optional, uses first if not specified)
             custom_position: Custom position override (x, y)
-            
+            upload_to_sheets: Override sheets upload setting for this mockup
+            variation_info: Variation details for organization (color, size, etc.)
+            airtable_record_id: Associated Airtable record ID for URL updates
+
         Returns:
-            Dictionary with generation results
+            Dictionary with generation results including Google Sheets URL if uploaded
         """
         try:
             # Validate inputs
@@ -352,13 +371,54 @@ class CustomMockupGenerator:
 
             logger.info(f"Generated mockup: {output_path}")
 
-            return {
+            # Upload to Google Sheets if enabled
+            sheets_result = None
+            if (upload_to_sheets is True or
+                (upload_to_sheets is None and self.enable_sheets_upload)) and self.sheets_uploader:
+
+                try:
+                    # Prepare product name from design path if not in variation_info
+                    product_name = variation_info.get('product_name') if variation_info else Path(design_path).stem
+
+                    # Add upload job to queue
+                    self.sheets_uploader.add_upload_job(
+                        mockup_path=str(output_path),
+                        product_name=product_name,
+                        variation_info=variation_info,
+                        airtable_record_id=airtable_record_id
+                    )
+
+                    # Process the upload immediately for single mockup
+                    batch_result = self.sheets_uploader.process_upload_queue(max_workers=1)
+
+                    if batch_result.successful_uploads > 0:
+                        sheets_result = batch_result.upload_results[0]
+                        logger.info(f"✅ Uploaded mockup to Google Sheets: {sheets_result.shareable_url}")
+                    else:
+                        logger.error(f"❌ Failed to upload mockup to Google Sheets: {batch_result.errors}")
+
+                except Exception as e:
+                    logger.error(f"Error during Google Sheets upload: {e}")
+
+            result = {
                 'success': True,
                 'mockup_path': str(output_path),
                 'template_used': template.name,
                 'design_position': position,
                 'output_size': final_mockup.size
             }
+
+            # Add Google Sheets information if uploaded
+            if sheets_result and sheets_result.success:
+                result.update({
+                    'google_sheets_url': sheets_result.shareable_url,
+                    'google_drive_file_id': sheets_result.file_id,
+                    'sheets_upload_status': 'success'
+                })
+            elif upload_to_sheets or self.enable_sheets_upload:
+                result['sheets_upload_status'] = 'failed'
+
+            return result
             
         except Exception as e:
             logger.error(f"Error generating mockup: {e}")

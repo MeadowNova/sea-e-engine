@@ -92,7 +92,11 @@ class AirtableClient:
             'quality_score': 'Quality Score',
             'file_path': 'File Path',
             'approved': 'Approved',
-            'variation': 'Variation'
+            'variation': 'Variation',
+            'google_sheets_url': 'Google Sheets URL',
+            'sheets_upload_status': 'Sheets Upload Status',
+            'sheets_upload_date': 'Sheets Upload Date',
+            'google_drive_file_id': 'Google Drive File ID'
         },
         'listings': {
             'listing_id': 'Listing ID',
