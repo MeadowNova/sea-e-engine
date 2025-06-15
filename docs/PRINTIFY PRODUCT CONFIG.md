@@ -1,0 +1,354 @@
+For T-shirts I have 12 colors and it goes up to 3XL.
+Baby Blue
+In stock	
+16873486645144704657
+USD 35.70	
+USD 12.62	
+35%	
+USD 9.13
+
+
+USD 9.20	
+USD 0.00
+Standard	
+S
+Black
+In stock	
+12095655739176178148
+USD 35.70	
+USD 12.62	
+35%	
+USD 9.13
+
+
+USD 9.20	
+USD 0.00
+Standard	
+S
+Dark Grey Heather
+In stock	
+11347151342113345400
+USD 35.70	
+USD 12.62	
+35%	
+USD 9.13
+
+
+USD 9.20	
+USD 0.00
+Standard	
+S
+Deep Heather
+In stock	
+23673116104919528179
+USD 35.70	
+USD 12.62	
+35%	
+USD 9.13
+
+
+USD 9.20	
+USD 0.00
+Standard	
+S
+Heather Navy
+In stock	
+18131423608486905972
+USD 35.70	
+USD 12.62	
+35%	
+USD 9.13
+
+
+USD 9.20	
+USD 0.00
+Standard	
+S
+Natural
+In stock	
+12209888954159529819
+USD 35.70	
+USD 12.62	
+35%	
+USD 9.13
+
+
+USD 9.20	
+USD 0.00
+Standard	
+S
+Navy
+In stock	
+20836090647822747018
+USD 35.70	
+USD 12.62	
+35%	
+USD 9.13
+
+
+USD 9.20	
+USD 0.00
+Standard	
+S
+Soft Pink
+In stock	
+84071411081678544043
+USD 35.70	
+USD 12.62	
+35%	
+USD 9.13
+
+
+USD 9.20	
+USD 0.00
+Standard	
+S
+White
+In stock	
+19583761938040762880
+USD 35.70	
+USD 12.62	
+35%	
+USD 9.13
+
+
+USD 9.20	
+USD 0.00
+Standard	
+S
+Yellow
+In stock	
+31045179069341006716
+USD 35.70	
+USD 12.62	
+35%	
+USD 9.13
+
+
+USD 9.20	
+USD 0.00
+Standard	
+S
+Heather Peach
+In stock	
+12821423563542406792
+USD 35.70	
+USD 12.62	
+35%	
+USD 9.13
+
+
+USD 9.20	
+USD 0.00
+Standard	
+S
+Black Heather
+
+For Sweatshirts I have 8 colors and it goes up to 3XL 
+Ash
+In stock	
+17352514473129605393
+USD 40.00	
+USD 21.03	
+53%	
+USD 13.91
+
+
+USD 5.06	
+USD 8.49
+Standard	
+S
+Dark Heather
+In stock	
+16931272497594112761
+USD 40.00	
+USD 21.03	
+53%	
+USD 13.91
+
+
+USD 5.06	
+USD 8.49
+Standard	
+S
+Light Blue
+In stock	
+14156338625860565258
+USD 40.00	
+USD 21.03	
+53%	
+USD 13.91
+
+
+USD 5.06	
+USD 8.49
+Standard	
+S
+Light Pink
+In stock	
+20519067950123950308
+USD 40.00	
+USD 21.03	
+53%	
+USD 13.91
+
+
+USD 5.06	
+USD 8.49
+Standard	
+S
+Navy
+In stock	
+64267485333610033497
+USD 40.00	
+USD 21.03	
+53%	
+USD 13.91
+
+
+USD 5.06	
+USD 8.49
+Standard	
+S
+Sand
+In stock	
+20041224649764251402
+USD 40.00	
+USD 21.03	
+53%	
+USD 13.91
+
+
+USD 5.06	
+USD 8.49
+Standard	
+S
+White
+In stock	
+10619444537718179863
+USD 40.00	
+USD 21.03	
+53%	
+USD 13.91
+
+
+USD 5.06	
+USD 8.49
+Standard	
+S
+Black
+
+For Posters I have 8 sizes 8" x 10"
+Matte
+In stock	
+26522494841654917026
+USD 29.99	
+USD 13.63	
+45%	
+USD 5.97
+
+
+USD 3.30	
+USD 0.00
+Standard	
+
+
+
+9" x 11"
+Matte
+In stock	
+26393737784506200110
+USD 30.99	
+USD 16.92	
+55%	
+USD 3.59
+
+
+USD 3.39	
+USD 0.00
+Standard	
+
+
+
+11″ x 14″
+Matte
+In stock	
+27432145981938334595
+USD 35.99	
+USD 20.74	
+58%	
+USD 4.29
+
+
+USD 3.87	
+USD 0.00
+Standard	
+
+
+
+12″ x 18″
+Matte
+In stock	
+30131321550888301957
+USD 35.99	
+USD 18.32	
+51%	
+USD 6.71
+
+
+USD 3.87	
+USD 0.00
+Standard	
+
+
+
+16″ x 20″
+Matte
+In stock	
+28324368306611942555
+USD 37.99	
+USD 18.86	
+50%	
+USD 7.78
+
+
+USD 4.06	
+USD 0.00
+Standard	
+
+
+
+18″ x 24″
+Matte
+In stock	
+29377873285797531255
+USD 37.99	
+USD 18.96	
+50%	
+USD 7.68
+
+
+USD 4.06	
+USD 0.00
+Standard	
+
+
+
+20″ x 30″
+Matte
+In stock	
+46842773478406823231
+USD 44.99	
+USD 24.03	
+53%	
+USD 8.95
+
+
+USD 4.72	
+USD 0.00
+Standard	
+
+
+
+24″ x 36″
+Matte

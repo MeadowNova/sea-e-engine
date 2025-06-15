@@ -1,0 +1,17 @@
+{
+  "blueprint_id": 12,
+  "print_provider_id": 29,
+  "base_price_markup": 1.5,
+  "recommended_variants": [
+    "S",
+    "M",
+    "L",
+    "XL"
+  ],
+  "recommended_colors": [
+    "White",
+    "Black",
+    "Navy",
+    "Heather Grey"
+  ]
+}

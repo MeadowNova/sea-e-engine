@@ -1,0 +1,59 @@
+{
+  "template_name": "7 - Soft Pink",
+  "image_path": "assets/mockups/tshirts/7 - Soft Pink.jpg",
+  "image_size": [
+    2048,
+    2048
+  ],
+  "design_areas": {
+    "design_area": {
+      "pixel_coordinates": [
+        [
+          695,
+          600
+        ],
+        [
+          1378,
+          600
+        ],
+        [
+          1378,
+          1304
+        ],
+        [
+          695,
+          1304
+        ]
+      ],
+      "normalized_coordinates": [
+        [
+          0.33935546875,
+          0.29296875
+        ],
+        [
+          0.6728515625,
+          0.29296875
+        ],
+        [
+          0.6728515625,
+          0.63671875
+        ],
+        [
+          0.33935546875,
+          0.63671875
+        ]
+      ],
+      "type": "rectangle"
+    }
+  },
+  "printify_coordinates": {
+    "design_area": {
+      "x": 0.506103515625,
+      "y": 0.46484375,
+      "scale": 0.33349609375,
+      "angle": 0,
+      "width": 0.33349609375,
+      "height": 0.34375
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "product_types": {
+    "tshirts": {
+      "name": "T-Shirts",
+      "blueprint_id": 12,
+      "print_provider_id": 29,
+      "retail_price": 35.70,
+      "colors": [
+        "Baby Blue",
+        "Black", 
+        "Dark Grey Heather",
+        "Deep Heather",
+        "Heather Navy",
+        "Natural",
+        "Navy",
+        "Soft Pink",
+        "White",
+        "Yellow",
+        "Heather Peach",
+        "Black Heather"
+      ],
+      "sizes": ["S", "M", "L", "XL", "XXL", "3XL"],
+      "total_variants": 72,
+      "description_template": "High-quality unisex t-shirt featuring unique design artwork.\n\nPerfect for casual wear, this comfortable Bella+Canvas tee offers:\n• 100% Airlume combed and ring-spun cotton\n• Lightweight 4.2 oz fabric\n• Retail fit with crew neckline\n• Tear-away label for comfort\n• Sustainably manufactured\n\nGreat gift for art lovers and anyone who appreciates unique style!"
+    },
+    "sweatshirts": {
+      "name": "Sweatshirts",
+      "blueprint_id": null,
+      "print_provider_id": 29,
+      "retail_price": 40.00,
+      "colors": [
+        "Ash",
+        "Dark Heather",
+        "Light Blue", 
+        "Light Pink",
+        "Navy",
+        "Sand",
+        "White",
+        "Black"
+      ],
+      "sizes": ["S", "M", "L", "XL", "XXL", "3XL"],
+      "total_variants": 48,
+      "description_template": "Cozy and comfortable sweatshirt featuring unique design artwork.\n\nPerfect for cooler weather, this premium sweatshirt offers:\n• Soft cotton blend fabric\n• Relaxed fit for comfort\n• Ribbed cuffs and hem\n• Quality construction\n• Machine washable\n\nGreat for layering or wearing on its own!"
+    },
+    "posters": {
+      "name": "Art Prints/Posters",
+      "blueprint_id": 282,
+      "print_provider_id": 2,
+      "finish": "Matte",
+      "sizes_and_prices": {
+        "8x10": 29.99,
+        "9x11": 30.99,
+        "11x14": 35.99,
+        "12x18": 35.99,
+        "16x20": 37.99,
+        "18x24": 37.99,
+        "20x30": 44.99,
+        "24x36": 44.99
+      },
+      "total_variants": 8,
+      "description_template": "Beautiful high-quality art print featuring unique design artwork.\n\nPerfect for home or office decor, this premium print offers:\n• Museum-quality matte finish\n• Fade-resistant inks\n• Thick, durable paper stock\n• Multiple size options\n• Ready to frame\n\nTransform any space with this stunning piece of art!"
+    }
+  },
+  "etsy_settings": {
+    "processing_time": {
+      "min_days": 3,
+      "max_days": 5
+    },
+    "shipping_profiles": {
+      "tshirts": "standard_apparel",
+      "sweatshirts": "standard_apparel", 
+      "posters": "standard_prints"
+    },
+    "categories": {
+      "tshirts": 69150467,
+      "sweatshirts": 69150467,
+      "posters": 69153965
+    },
+    "default_tags": {
+      "tshirts": ["custom", "design", "tshirt", "unisex", "cotton", "comfortable", "gift", "art", "unique", "bella canvas", "quality", "casual", "printify"],
+      "sweatshirts": ["custom", "design", "sweatshirt", "unisex", "cotton", "comfortable", "gift", "art", "unique", "cozy", "quality", "casual", "printify"],
+      "posters": ["art print", "poster", "wall art", "home decor", "unique", "gift", "artwork", "design", "matte", "quality", "printify", "custom", "beautiful"]
+    }
+  },
+  "workflow_settings": {
+    "hide_new_listings": true,
+    "auto_publish_to_etsy": false,
+    "quality_check_required": true,
+    "mockup_generation_required": true,
+    "coordinate_precision_required": true
+  },
+  "notes": {
+    "last_updated": "2025-06-15",
+    "source": "PRINTIFY PRODUCT CONFIG.md",
+    "verified_configurations": true,
+    "production_ready": true
+  }
+}

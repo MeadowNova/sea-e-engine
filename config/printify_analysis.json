@@ -1,0 +1,354 @@
+{
+  "shop_id": "18472557",
+  "products": [
+    {
+      "id": "684eb915047ae767430476a1",
+      "title": "T-Shirt Template",
+      "blueprint_id": 12,
+      "print_provider_id": 29,
+      "status": null,
+      "variant_count": 318,
+      "variants": [
+        {
+          "id": 18052,
+          "sku": "14815347666289514634",
+          "cost": 913,
+          "price": 2350,
+          "title": "Aqua / S",
+          "grams": 125,
+          "is_enabled": false,
+          "is_default": false,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            887,
+            14
+          ],
+          "quantity": 1
+        },
+        {
+          "id": 18053,
+          "sku": "17553751533449287331",
+          "cost": 913,
+          "price": 2350,
+          "title": "Aqua / M",
+          "grams": 132,
+          "is_enabled": false,
+          "is_default": false,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            887,
+            15
+          ],
+          "quantity": 1
+        },
+        {
+          "id": 18054,
+          "sku": "27008246047979687731",
+          "cost": 913,
+          "price": 2350,
+          "title": "Aqua / L",
+          "grams": 146,
+          "is_enabled": false,
+          "is_default": false,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            887,
+            16
+          ],
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "id": "684eb32809bce0c2370d8255",
+      "title": "Copy of Floral Van Gogh Half and Half Shirt",
+      "blueprint_id": 12,
+      "print_provider_id": 29,
+      "status": null,
+      "variant_count": 318,
+      "variants": [
+        {
+          "id": 18052,
+          "sku": "37009004343844923460",
+          "cost": 913,
+          "price": 2350,
+          "title": "Aqua / S",
+          "grams": 125,
+          "is_enabled": false,
+          "is_default": false,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            887,
+            14
+          ],
+          "quantity": 1
+        },
+        {
+          "id": 18053,
+          "sku": "26604446291214367722",
+          "cost": 913,
+          "price": 2350,
+          "title": "Aqua / M",
+          "grams": 132,
+          "is_enabled": false,
+          "is_default": false,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            887,
+            15
+          ],
+          "quantity": 1
+        },
+        {
+          "id": 18054,
+          "sku": "30553907396238840641",
+          "cost": 913,
+          "price": 2350,
+          "title": "Aqua / L",
+          "grams": 146,
+          "is_enabled": false,
+          "is_default": false,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            887,
+            16
+          ],
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "id": "684c6a778a7f6f02b704e57e",
+      "title": "Floral Van Gogh Half and Half Shirt",
+      "blueprint_id": 12,
+      "print_provider_id": 29,
+      "status": null,
+      "variant_count": 318,
+      "variants": [
+        {
+          "id": 18052,
+          "sku": "24373105301518753799",
+          "cost": 913,
+          "price": 2350,
+          "title": "Aqua / S",
+          "grams": 125,
+          "is_enabled": false,
+          "is_default": false,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            887,
+            14
+          ],
+          "quantity": 1
+        },
+        {
+          "id": 18053,
+          "sku": "22026133569849628026",
+          "cost": 913,
+          "price": 2350,
+          "title": "Aqua / M",
+          "grams": 132,
+          "is_enabled": false,
+          "is_default": false,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            887,
+            15
+          ],
+          "quantity": 1
+        },
+        {
+          "id": 18054,
+          "sku": "36012709957872255107",
+          "cost": 913,
+          "price": 2350,
+          "title": "Aqua / L",
+          "grams": 146,
+          "is_enabled": false,
+          "is_default": false,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            887,
+            16
+          ],
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "id": "68496af1cddb1dc6780a5959",
+      "title": "White Cat Art Print, Le Chat Blanc Illustration, Vintage Floral Cat Decor, Elegant French Style Wall Art, Cat Lover Gift",
+      "blueprint_id": 282,
+      "print_provider_id": 2,
+      "status": null,
+      "variant_count": 46,
+      "variants": [
+        {
+          "id": 43135,
+          "sku": "27432145981938334595",
+          "cost": 429,
+          "price": 3599,
+          "title": "11\u2033 x 14\u2033 / Matte",
+          "grams": 20,
+          "is_enabled": true,
+          "is_default": false,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            1078,
+            1932
+          ],
+          "quantity": 1
+        },
+        {
+          "id": 43138,
+          "sku": "30131321550888301957",
+          "cost": 671,
+          "price": 3599,
+          "title": "12\u2033 x 18\u2033 / Matte",
+          "grams": 250,
+          "is_enabled": true,
+          "is_default": false,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            1085,
+            1932
+          ],
+          "quantity": 1
+        },
+        {
+          "id": 43141,
+          "sku": "28324368306611942555",
+          "cost": 778,
+          "price": 3799,
+          "title": "16\u2033 x 20\u2033 / Matte",
+          "grams": 250,
+          "is_enabled": true,
+          "is_default": false,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            1087,
+            1932
+          ],
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "id": "684965a97483e9399e0d3766",
+      "title": "Cubist Cat Art Print, Funny Picasso Parody Painting, Unique Cat Lover Gift, Art History Home Decor, Humorous Wall Art for Cat Mom",
+      "blueprint_id": 282,
+      "print_provider_id": 2,
+      "status": null,
+      "variant_count": 46,
+      "variants": [
+        {
+          "id": 43135,
+          "sku": "75723685111816896464",
+          "cost": 429,
+          "price": 3599,
+          "title": "11\u2033 x 14\u2033 / Matte",
+          "grams": 20,
+          "is_enabled": true,
+          "is_default": true,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            1078,
+            1932
+          ],
+          "quantity": 1
+        },
+        {
+          "id": 43138,
+          "sku": "15295061668281259616",
+          "cost": 671,
+          "price": 3599,
+          "title": "12\u2033 x 18\u2033 / Matte",
+          "grams": 250,
+          "is_enabled": true,
+          "is_default": false,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            1085,
+            1932
+          ],
+          "quantity": 1
+        },
+        {
+          "id": 43141,
+          "sku": "24696242264682243079",
+          "cost": 778,
+          "price": 3799,
+          "title": "16\u2033 x 20\u2033 / Matte",
+          "grams": 250,
+          "is_enabled": true,
+          "is_default": false,
+          "is_available": true,
+          "is_printify_express_eligible": false,
+          "options": [
+            1087,
+            1932
+          ],
+          "quantity": 1
+        }
+      ]
+    }
+  ],
+  "common_patterns": {
+    "blueprints": {
+      "12": 3,
+      "282": 2
+    },
+    "providers": {
+      "29": 3,
+      "2": 2
+    },
+    "pricing_ranges": {
+      "684eb915047ae767430476a1": {
+        "min": 23.5,
+        "max": 40.75,
+        "count": 318
+      },
+      "684eb32809bce0c2370d8255": {
+        "min": 23.5,
+        "max": 40.75,
+        "count": 318
+      },
+      "684c6a778a7f6f02b704e57e": {
+        "min": 23.5,
+        "max": 40.75,
+        "count": 318
+      },
+      "68496af1cddb1dc6780a5959": {
+        "min": 10.98,
+        "max": 49.35,
+        "count": 46
+      },
+      "684965a97483e9399e0d3766": {
+        "min": 10.98,
+        "max": 49.35,
+        "count": 46
+      }
+    },
+    "variant_counts": [
+      318,
+      318,
+      318,
+      46,
+      46
+    ]
+  }
+}

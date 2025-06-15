@@ -1,0 +1,238 @@
+{
+  "coordinates_data": {
+    "3- Black": {
+      "template_name": "3- Black",
+      "filename": "3- Black.jpg",
+      "design_area": [
+        702,
+        564,
+        1412,
+        1285
+      ],
+      "via_coordinates": {
+        "x": 702,
+        "y": 564,
+        "width": 710,
+        "height": 721
+      }
+    },
+    "2": {
+      "template_name": "2",
+      "filename": "2.png",
+      "design_area": [
+        676,
+        538,
+        1302,
+        1197
+      ],
+      "via_coordinates": {
+        "x": 676,
+        "y": 538,
+        "width": 626,
+        "height": 659
+      }
+    },
+    "2 - Natural": {
+      "template_name": "2 - Natural",
+      "filename": "2 - Natural.jpg",
+      "design_area": [
+        799,
+        274,
+        1306,
+        849
+      ],
+      "via_coordinates": {
+        "x": 799,
+        "y": 274,
+        "width": 507,
+        "height": 575
+      }
+    },
+    "9 - Light Blue": {
+      "template_name": "9 - Light Blue",
+      "filename": "9 - Light Blue.jpg",
+      "design_area": [
+        717,
+        388,
+        1306,
+        978
+      ],
+      "via_coordinates": {
+        "x": 717,
+        "y": 388,
+        "width": 589,
+        "height": 590
+      }
+    },
+    "5 - Athletic Heather": {
+      "template_name": "5 - Athletic Heather",
+      "filename": "5 - Athletic Heather.jpg",
+      "design_area": [
+        709,
+        542,
+        1326,
+        1173
+      ],
+      "via_coordinates": {
+        "x": 709,
+        "y": 542,
+        "width": 617,
+        "height": 631
+      }
+    },
+    "10 - Tan": {
+      "template_name": "10 - Tan",
+      "filename": "10 - Tan.jpg",
+      "design_area": [
+        707,
+        392,
+        1270,
+        965
+      ],
+      "via_coordinates": {
+        "x": 707,
+        "y": 392,
+        "width": 563,
+        "height": 573
+      }
+    },
+    "7 - Soft Pink": {
+      "template_name": "7 - Soft Pink",
+      "filename": "7 - Soft Pink.jpg",
+      "design_area": [
+        695,
+        600,
+        1378,
+        1304
+      ],
+      "via_coordinates": {
+        "x": 695,
+        "y": 600,
+        "width": 683,
+        "height": 704
+      }
+    },
+    "1": {
+      "template_name": "1",
+      "filename": "1.png",
+      "design_area": [
+        715,
+        683,
+        1279,
+        1307
+      ],
+      "via_coordinates": {
+        "x": 715,
+        "y": 683,
+        "width": 564,
+        "height": 624
+      }
+    }
+  },
+  "template_updates": {
+    "3- Black": {
+      "name": "Black T-Shirt - Lifestyle",
+      "blend_mode": "screen",
+      "color_base": "black",
+      "opacity": 1.0,
+      "padding_factor": 1.0,
+      "design_area": [
+        702,
+        564,
+        1412,
+        1285
+      ]
+    },
+    "2": {
+      "name": "White T-Shirt - Flat Lay",
+      "blend_mode": "multiply",
+      "color_base": "white",
+      "opacity": 0.95,
+      "padding_factor": 1.0,
+      "design_area": [
+        676,
+        538,
+        1302,
+        1197
+      ]
+    },
+    "2 - Natural": {
+      "name": "Natural Beige T-Shirt - Lifestyle",
+      "blend_mode": "multiply",
+      "color_base": "natural",
+      "opacity": 0.88,
+      "padding_factor": 1.0,
+      "design_area": [
+        799,
+        274,
+        1306,
+        849
+      ]
+    },
+    "9 - Light Blue": {
+      "name": "Light Blue T-Shirt",
+      "blend_mode": "multiply",
+      "color_base": "blue",
+      "opacity": 0.9,
+      "padding_factor": 1.0,
+      "design_area": [
+        717,
+        388,
+        1306,
+        978
+      ]
+    },
+    "5 - Athletic Heather": {
+      "name": "Athletic Heather T-Shirt",
+      "blend_mode": "multiply",
+      "color_base": "heather",
+      "opacity": 0.9,
+      "padding_factor": 1.0,
+      "design_area": [
+        709,
+        542,
+        1326,
+        1173
+      ]
+    },
+    "10 - Tan": {
+      "name": "Tan T-Shirt",
+      "blend_mode": "multiply",
+      "color_base": "tan",
+      "opacity": 0.9,
+      "padding_factor": 1.0,
+      "design_area": [
+        707,
+        392,
+        1270,
+        965
+      ]
+    },
+    "7 - Soft Pink": {
+      "name": "Soft Pink T-Shirt",
+      "blend_mode": "multiply",
+      "color_base": "pink",
+      "opacity": 0.9,
+      "padding_factor": 1.0,
+      "design_area": [
+        695,
+        600,
+        1378,
+        1304
+      ]
+    },
+    "1": {
+      "name": "Black T-Shirt - Hanger",
+      "blend_mode": "screen",
+      "color_base": "black",
+      "opacity": 0.95,
+      "padding_factor": 1.0,
+      "design_area": [
+        715,
+        683,
+        1279,
+        1307
+      ]
+    }
+  }
+}

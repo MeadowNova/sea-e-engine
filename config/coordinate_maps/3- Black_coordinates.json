@@ -1,0 +1,59 @@
+{
+  "template_name": "3- Black",
+  "image_path": "assets/mockups/tshirts/3- Black.jpg",
+  "image_size": [
+    2048,
+    2048
+  ],
+  "design_areas": {
+    "design_area": {
+      "pixel_coordinates": [
+        [
+          702,
+          564
+        ],
+        [
+          1412,
+          564
+        ],
+        [
+          1412,
+          1285
+        ],
+        [
+          702,
+          1285
+        ]
+      ],
+      "normalized_coordinates": [
+        [
+          0.3427734375,
+          0.275390625
+        ],
+        [
+          0.689453125,
+          0.275390625
+        ],
+        [
+          0.689453125,
+          0.62744140625
+        ],
+        [
+          0.3427734375,
+          0.62744140625
+        ]
+      ],
+      "type": "rectangle"
+    }
+  },
+  "printify_coordinates": {
+    "design_area": {
+      "x": 0.51611328125,
+      "y": 0.451416015625,
+      "scale": 0.3466796875,
+      "angle": 0,
+      "width": 0.3466796875,
+      "height": 0.35205078125
+    }
+  }
+}

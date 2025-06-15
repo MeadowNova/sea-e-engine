@@ -5,172 +5,291 @@
   "description": "Precise positioning and effect settings for custom mockup templates",
   "version": "1.0.0",
   "last_updated": "2025-01-15",
-  
   "template_categories": {
     "tshirts": {
       "description": "T-shirt mockup templates with chest design placement",
       "default_settings": {
-        "design_area": [600, 500, 1400, 1300],
         "opacity": 0.9,
         "blend_mode": "multiply",
         "fabric_blur": true,
-        "shadow_offset": [2, 2],
-        "shadow_opacity": 0.3
+        "shadow_offset": [
+          2,
+          2
+        ],
+        "shadow_opacity": 0.3,
+        "padding_factor": 1.0
       },
       "templates": {
         "1": {
-          "name": "White T-Shirt Front View",
-          "design_area": [600, 480, 1400, 1280],
+          "name": "Black T-Shirt - Hanger",
+          "design_area": [
+            715,
+            683,
+            1279,
+            1307
+          ],
+          "opacity": 0.95,
+          "blend_mode": "screen",
+          "color_base": "black",
+          "padding_factor": 1.0,
+          "notes": "Black hanger shot - use screen blend for light designs on dark fabric"
+        },
+        "2": {
+          "name": "White T-Shirt - Flat Lay",
+          "design_area": [
+            676,
+            538,
+            1302,
+            1197
+          ],
           "opacity": 0.95,
           "blend_mode": "multiply",
           "color_base": "white",
-          "notes": "Clean white background, perfect for colorful designs"
+          "padding_factor": 1.0,
+          "notes": "White flat lay mockup"
         },
         "2 - Natural": {
-          "name": "Natural Beige T-Shirt",
-          "design_area": [600, 500, 1400, 1300],
+          "name": "Natural Beige T-Shirt - Lifestyle",
+          "design_area": [
+            799,
+            274,
+            1306,
+            849
+          ],
           "opacity": 0.88,
           "blend_mode": "multiply",
           "color_base": "natural",
+          "padding_factor": 1.0,
           "fabric_texture": true
         },
         "3- Black": {
-          "name": "Black T-Shirt",
-          "design_area": [600, 520, 1400, 1320],
-          "opacity": 0.85,
+          "name": "Black T-Shirt - Lifestyle",
+          "design_area": [
+            702,
+            564,
+            1412,
+            1285
+          ],
+          "opacity": 1.0,
           "blend_mode": "screen",
           "color_base": "black",
+          "padding_factor": 1.0,
           "notes": "Use screen blend for light designs on dark fabric"
         },
         "5 - Athletic Heather": {
-          "name": "Athletic Heather Gray",
-          "design_area": [600, 500, 1400, 1300],
+          "name": "Athletic Heather T-Shirt",
+          "design_area": [
+            709,
+            542,
+            1326,
+            1173
+          ],
           "opacity": 0.9,
           "blend_mode": "multiply",
-          "color_base": "heather_gray"
+          "color_base": "heather",
+          "padding_factor": 1.0
         },
         "7 - Soft Pink": {
           "name": "Soft Pink T-Shirt",
-          "design_area": [600, 490, 1400, 1290],
-          "opacity": 0.92,
+          "design_area": [
+            695,
+            600,
+            1378,
+            1304
+          ],
+          "opacity": 0.9,
           "blend_mode": "multiply",
-          "color_base": "soft_pink"
+          "color_base": "pink",
+          "padding_factor": 1.0
         },
         "9 - Light Blue": {
           "name": "Light Blue T-Shirt",
-          "design_area": [600, 500, 1400, 1300],
+          "design_area": [
+            717,
+            388,
+            1306,
+            978
+          ],
           "opacity": 0.9,
           "blend_mode": "multiply",
-          "color_base": "light_blue"
+          "color_base": "blue",
+          "padding_factor": 1.0
         },
         "10 - Tan": {
           "name": "Tan T-Shirt",
-          "design_area": [600, 510, 1400, 1310],
-          "opacity": 0.87,
+          "design_area": [
+            707,
+            392,
+            1270,
+            965
+          ],
+          "opacity": 0.9,
           "blend_mode": "multiply",
-          "color_base": "tan"
+          "color_base": "tan",
+          "padding_factor": 1.0
         }
       }
     },
-    
     "sweatshirts": {
       "description": "Sweatshirt mockup templates with chest design placement",
       "default_settings": {
-        "design_area": [600, 600, 1400, 1400],
+        "design_area": [
+          600,
+          600,
+          1400,
+          1400
+        ],
         "opacity": 0.85,
         "blend_mode": "multiply",
         "fabric_blur": true,
         "fabric_texture": true,
-        "shadow_offset": [3, 3],
+        "shadow_offset": [
+          3,
+          3
+        ],
         "shadow_opacity": 0.4
       },
       "templates": {
         "default": {
           "name": "Standard Sweatshirt",
-          "design_area": [600, 600, 1400, 1400],
+          "design_area": [
+            600,
+            600,
+            1400,
+            1400
+          ],
           "opacity": 0.85,
           "blend_mode": "multiply"
         }
       }
     },
-    
     "posters": {
       "description": "Poster mockup templates with full design area",
       "default_settings": {
-        "design_area": [200, 200, 1800, 1800],
+        "design_area": [
+          200,
+          200,
+          1800,
+          1800
+        ],
         "opacity": 1.0,
         "blend_mode": "normal",
         "fabric_blur": false,
-        "shadow_offset": [5, 5],
+        "shadow_offset": [
+          5,
+          5
+        ],
         "shadow_opacity": 0.2
       },
       "templates": {
         "default": {
           "name": "Standard Poster Frame",
-          "design_area": [200, 200, 1800, 1800],
+          "design_area": [
+            200,
+            200,
+            1800,
+            1800
+          ],
           "opacity": 1.0,
           "blend_mode": "normal"
         }
       }
     }
   },
-  
   "blend_modes": {
     "normal": {
       "description": "Standard overlay, no blending",
-      "best_for": ["posters", "stickers", "solid backgrounds"]
+      "best_for": [
+        "posters",
+        "stickers",
+        "solid backgrounds"
+      ]
     },
     "multiply": {
       "description": "Darkens colors, good for fabric integration",
-      "best_for": ["light colored fabrics", "realistic fabric look"]
+      "best_for": [
+        "light colored fabrics",
+        "realistic fabric look"
+      ]
     },
     "screen": {
       "description": "Lightens colors, good for dark backgrounds",
-      "best_for": ["dark colored fabrics", "light designs on dark"]
+      "best_for": [
+        "dark colored fabrics",
+        "light designs on dark"
+      ]
     },
     "overlay": {
       "description": "Combines multiply and screen",
-      "best_for": ["textured fabrics", "vintage effects"]
+      "best_for": [
+        "textured fabrics",
+        "vintage effects"
+      ]
     }
   },
-  
   "positioning_guides": {
     "tshirt_chest_center": {
       "description": "Standard chest placement for t-shirts",
-      "coordinates": [700, 650],
-      "size_range": [200, 800],
+      "coordinates": [
+        700,
+        650
+      ],
+      "size_range": [
+        200,
+        800
+      ],
       "notes": "Most common placement for t-shirt designs"
     },
     "tshirt_chest_left": {
       "description": "Left chest pocket area",
-      "coordinates": [550, 550],
-      "size_range": [80, 150],
+      "coordinates": [
+        550,
+        550
+      ],
+      "size_range": [
+        80,
+        150
+      ],
       "notes": "Small logo placement"
     },
     "sweatshirt_center": {
       "description": "Center chest for sweatshirts",
-      "coordinates": [700, 700],
-      "size_range": [250, 600],
+      "coordinates": [
+        700,
+        700
+      ],
+      "size_range": [
+        250,
+        600
+      ],
       "notes": "Slightly lower than t-shirt placement"
     }
   },
-  
   "quality_settings": {
     "draft": {
       "description": "Fast generation for testing",
-      "output_size": [1000, 1000],
+      "output_size": [
+        1000,
+        1000
+      ],
       "quality": 75,
       "effects": false
     },
     "standard": {
       "description": "Good quality for most uses",
-      "output_size": [2000, 2000],
+      "output_size": [
+        2000,
+        2000
+      ],
       "quality": 90,
       "effects": true
     },
     "high": {
       "description": "Maximum quality for final output",
-      "output_size": [3000, 3000],
+      "output_size": [
+        3000,
+        3000
+      ],
       "quality": 95,
       "effects": true,
       "additional_processing": true

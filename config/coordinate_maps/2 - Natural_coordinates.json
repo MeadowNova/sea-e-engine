@@ -1,0 +1,59 @@
+{
+  "template_name": "2 - Natural",
+  "image_path": "assets/mockups/tshirts/2 - Natural.jpg",
+  "image_size": [
+    2048,
+    1536
+  ],
+  "design_areas": {
+    "design_area": {
+      "pixel_coordinates": [
+        [
+          799,
+          274
+        ],
+        [
+          1306,
+          274
+        ],
+        [
+          1306,
+          849
+        ],
+        [
+          799,
+          849
+        ]
+      ],
+      "normalized_coordinates": [
+        [
+          0.39013671875,
+          0.17838541666666666
+        ],
+        [
+          0.6376953125,
+          0.17838541666666666
+        ],
+        [
+          0.6376953125,
+          0.552734375
+        ],
+        [
+          0.39013671875,
+          0.552734375
+        ]
+      ],
+      "type": "rectangle"
+    }
+  },
+  "printify_coordinates": {
+    "design_area": {
+      "x": 0.513916015625,
+      "y": 0.3655598958333333,
+      "scale": 0.24755859375,
+      "angle": 0,
+      "width": 0.24755859375,
+      "height": 0.37434895833333337
+    }
+  }
+}

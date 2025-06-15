@@ -1,0 +1,59 @@
+{
+  "template_name": "2",
+  "image_path": "assets/mockups/tshirts/2.png",
+  "image_size": [
+    2000,
+    2000
+  ],
+  "design_areas": {
+    "design_area": {
+      "pixel_coordinates": [
+        [
+          676,
+          538
+        ],
+        [
+          1302,
+          538
+        ],
+        [
+          1302,
+          1197
+        ],
+        [
+          676,
+          1197
+        ]
+      ],
+      "normalized_coordinates": [
+        [
+          0.338,
+          0.269
+        ],
+        [
+          0.651,
+          0.269
+        ],
+        [
+          0.651,
+          0.5985
+        ],
+        [
+          0.338,
+          0.5985
+        ]
+      ],
+      "type": "rectangle"
+    }
+  },
+  "printify_coordinates": {
+    "design_area": {
+      "x": 0.49450000000000005,
+      "y": 0.43375,
+      "scale": 0.313,
+      "angle": 0,
+      "width": 0.313,
+      "height": 0.3295
+    }
+  }
+}

@@ -22,6 +22,7 @@ from typing import Dict, List, Tuple, Any, Optional
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 import numpy as np
 import sys
+from copy import deepcopy
 
 # Add utils to path for output manager
 sys.path.append(str(Path(__file__).parent.parent))
@@ -161,8 +162,9 @@ class CustomMockupGenerator:
                         # Get specific config for this template or use defaults
                         template_config = template_configs.get(template_name, {})
 
-                        # Merge default settings with specific template settings
-                        config = default_settings.copy()
+                        # Merge default settings with specific template settings using deep copy
+                        # This prevents shared references that could cause coordinate drift
+                        config = deepcopy(default_settings)
                         config.update(template_config)
 
                         template = MockupTemplate(str(template_file), config)
@@ -172,22 +174,25 @@ class CustomMockupGenerator:
 
         return templates
     
-    def _resize_design_to_fit(self, design: Image.Image, target_area: Tuple[int, int, int, int], 
-                             padding_factor: float = 0.8) -> Image.Image:
+    def _resize_design_to_fit(self, design: Image.Image, target_area: Tuple[int, int, int, int],
+                             template: MockupTemplate) -> Image.Image:
         """
         Resize design to fit target area while maintaining aspect ratio.
-        
+
         Args:
             design: Design image to resize
             target_area: Target area (x1, y1, x2, y2)
-            padding_factor: Factor to leave padding (0.8 = 20% padding)
-            
+            template: Template with padding_factor configuration
+
         Returns:
             Resized design image
         """
         area_width = target_area[2] - target_area[0]
         area_height = target_area[3] - target_area[1]
-        
+
+        # Get padding factor from template config (default 0.95 for slight padding)
+        padding_factor = template.config.get("padding_factor", 0.95)
+
         # Calculate scaling factor
         scale_x = (area_width * padding_factor) / design.width
         scale_y = (area_height * padding_factor) / design.height
@@ -269,7 +274,7 @@ class CustomMockupGenerator:
             result = Image.fromarray(np.uint8(blended))
 
         elif blend_mode == 'screen':
-            # Screen blend for light designs on dark backgrounds
+            # Enhanced screen blend for better visibility on dark backgrounds
             overlay = Image.new('RGBA', template_img.size, (0, 0, 0, 0))
             overlay.paste(design, position, design)
 
@@ -284,9 +289,15 @@ class CustomMockupGenerator:
                 overlay_rgb.paste(overlay, mask=overlay.split()[-1])
                 overlay = overlay_rgb
 
-            # Apply screen blend: 1 - (1-a) * (1-b)
+            # Apply enhanced screen blend with brightness boost
             result_array = np.array(result, dtype=np.float32) / 255.0
             overlay_array = np.array(overlay, dtype=np.float32) / 255.0
+
+            # Boost overlay brightness for better visibility on dark fabrics
+            # Use higher boost factor for better contrast
+            overlay_array = np.clip(overlay_array * 1.6, 0, 1)
+
+            # Apply screen blend: 1 - (1-a) * (1-b)
             blended = 1 - (1 - result_array) * (1 - overlay_array)
             result = Image.fromarray(np.uint8(blended * 255))
 
@@ -335,8 +346,8 @@ class CustomMockupGenerator:
             # Load template
             template_img = template.load()
             
-            # Resize design to fit
-            design_resized = self._resize_design_to_fit(design, template.design_area)
+            # Resize design to fit with template-specific padding factor
+            design_resized = self._resize_design_to_fit(design, template.design_area, template)
             
             # Apply realistic effects
             design_processed = self._apply_realistic_effects(design_resized, template)
