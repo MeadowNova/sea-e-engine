@@ -156,7 +156,7 @@
       },
       "automation_settings": {
         "auto_publish": true,
-        "default_colors": ["white", "black", "navy", "ash", "athletic_heather", "baby_blue", "dark_grey", "heather_navy", "light_blue", "natural", "red"],
+        "default_colors": ["white", "black", "navy", "ash", "athletic_heather", "baby_blue", "dark_grey", "heather_navy", "heather_peach", "light_blue", "natural", "red", "soft_pink"],
         "default_sizes": ["S", "M", "L", "XL"],
         "seo_keywords": ["t-shirt", "unisex", "cotton", "bella canvas", "short sleeve"],
         "category_tags": ["apparel", "casual", "everyday"]

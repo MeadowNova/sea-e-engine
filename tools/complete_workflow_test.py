@@ -123,20 +123,20 @@ class WorkflowTester:
             # Create the product
             print("🔨 Creating product with variations...")
 
-            # Use the new complete Etsy listing method (eliminates Etsy API dependency)
+            # Use the new hybrid workflow method
             tags = ["custom", "t-shirt", "design", "apparel", "clothing", "print-on-demand"]
 
-            result = self.printify.create_complete_etsy_listing(
+            result = self.printify.create_product_with_draft_publishing(
                 title=config['title'],
                 description=config['description'],
-                tags=tags,
-                design_file_path=design_path,
                 blueprint_id=config['blueprint_id'],
                 print_provider_id=config['print_provider_id'],
-                publish_immediately=False  # Keep as draft
+                design_file_path=design_path,
+                tags=tags
             )
 
-            product_id = result.get('product_id')
+            product_id = result.get('printify_product_id')
+            etsy_draft_id = result.get('etsy_draft_listing_id')
             
             if not product_id:
                 self.log_step("Printify product creation", False, "No product ID returned")

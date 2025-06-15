@@ -11,6 +11,7 @@ retry mechanisms, and product management.
 import os
 import time
 import requests
+from datetime import datetime
 from typing import Dict, List, Optional, Any
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
@@ -70,24 +71,32 @@ class PrintifyAPIClient:
             "User-Agent": "SEA-Engine/2.0"
         }
     
-    def make_request(self, method: str, endpoint: str, params: Dict = None, 
-                    data: Dict = None, retry_count: int = 0) -> requests.Response:
+    def make_request(self, method: str, endpoint: str, params: Dict = None,
+                    data: Dict = None, retry_count: int = 0, timeout: int = None) -> requests.Response:
         """
         Make authenticated request to Printify API with retry logic.
-        
+
         Args:
             method: HTTP method
             endpoint: API endpoint
             params: Query parameters
             data: Request body data
             retry_count: Current retry attempt
-            
+            timeout: Custom timeout for this request (default: 60s, 300s for uploads)
+
         Returns:
             requests.Response: API response
         """
         url = f"{self.base_url}{endpoint}"
         headers = self.get_headers()
-        
+
+        # Set appropriate timeout based on endpoint
+        if timeout is None:
+            if "/uploads/images" in endpoint:
+                timeout = 300  # 5 minutes for image uploads
+            else:
+                timeout = 60   # 1 minute for other requests
+
         try:
             response = self.session.request(
                 method=method,
@@ -95,7 +104,7 @@ class PrintifyAPIClient:
                 headers=headers,
                 params=params,
                 json=data,
-                timeout=60
+                timeout=timeout
             )
             
             # Handle rate limiting
@@ -103,17 +112,30 @@ class PrintifyAPIClient:
                 retry_after = int(response.headers.get("Retry-After", 5))
                 self.logger.warning(f"Rate limited, retrying after {retry_after} seconds")
                 time.sleep(retry_after)
-                return self.make_request(method, endpoint, params, data, retry_count + 1)
-            
+                return self.make_request(method, endpoint, params, data, retry_count + 1, timeout)
+
             return response
-            
+
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Network error: {e}")
+
+            # Special handling for upload timeouts
+            if "/uploads/images" in endpoint and "timeout" in str(e).lower():
+                if retry_count < 3:  # More retries for uploads
+                    wait_time = 5 + (retry_count * 5)  # Progressive backoff: 5s, 10s, 15s
+                    self.logger.warning(f"Upload timeout, retrying in {wait_time} seconds... (attempt {retry_count + 1}/3)")
+                    time.sleep(wait_time)
+                    return self.make_request(method, endpoint, params, data, retry_count + 1, timeout)
+                else:
+                    self.logger.error("Upload failed after 3 timeout retries. Consider optimizing image size.")
+                    raise
+
+            # Standard retry logic for other errors
             if retry_count < 2:
                 wait_time = 2 ** retry_count
                 self.logger.info(f"Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
-                return self.make_request(method, endpoint, params, data, retry_count + 1)
+                return self.make_request(method, endpoint, params, data, retry_count + 1, timeout)
             raise
     
     def test_connection(self) -> bool:
@@ -166,60 +188,111 @@ class PrintifyAPIClient:
             if not Path(image_path).exists():
                 raise FileNotFoundError(f"Image file not found: {image_path}")
 
-            # Validate image quality and format
-            from PIL import Image
-            import io
+            # Check file extension to determine processing method
+            file_extension = Path(image_path).suffix.lower()
+            file_size_mb = os.path.getsize(image_path) / (1024 * 1024)
 
-            # Open and validate the image
-            with Image.open(image_path) as img:
-                # Log image details for debugging
-                self.logger.info(f"Image format: {img.format}, Size: {img.size}, Mode: {img.mode}")
+            if file_extension == '.svg':
+                # Handle SVG files directly (Printify supports SVG)
+                with open(image_path, 'rb') as f:
+                    image_data = f.read()
+                self.logger.info(f"SVG file uploaded directly: {file_size_mb:.2f}MB")
+                self.logger.info("✅ Vector format - infinite DPI scalability!")
 
-                # Ensure image is high quality (300+ DPI equivalent)
-                if hasattr(img, 'info') and 'dpi' in img.info:
-                    dpi = img.info['dpi']
-                    self.logger.info(f"Image DPI: {dpi}")
-
-                # Optimize image for print quality
-                # Ensure minimum resolution for print (300 DPI equivalent)
-                min_size = 3000  # Minimum 3000px for high quality print
-                if min(img.size) < min_size:
-                    # Resize maintaining aspect ratio
-                    ratio = min_size / min(img.size)
-                    new_size = (int(img.size[0] * ratio), int(img.size[1] * ratio))
-                    img = img.resize(new_size, Image.Resampling.LANCZOS)
-                    self.logger.info(f"Upscaled image to {new_size} for print quality")
-
-                # Ensure transparency is preserved for PNG
-                if img.format == 'PNG' and img.mode in ('RGBA', 'LA'):
-                    self.logger.info("PNG with transparency detected - preserving alpha channel")
-                elif img.format == 'PNG' and img.mode != 'RGBA':
-                    # Convert to RGBA to ensure transparency support
-                    img = img.convert('RGBA')
-                    self.logger.info("Converted PNG to RGBA for transparency support")
-
-                # Save optimized version while preserving maximum quality
-                output_buffer = io.BytesIO()
-                if img.format == 'PNG' or img.mode == 'RGBA':
-                    # Preserve PNG transparency and quality - NO compression for print
-                    img.save(output_buffer, format='PNG', optimize=False, compress_level=0)
-                    self.logger.info("Saved as PNG with zero compression for maximum print quality")
-                else:
-                    # For JPEG, use maximum quality
-                    img.save(output_buffer, format='JPEG', quality=100, optimize=False)
-                    self.logger.info("Saved as JPEG with 100% quality")
-
-                image_data = output_buffer.getvalue()
+                # Convert to base64 for API upload
                 image_base64 = base64.b64encode(image_data).decode('utf-8')
 
-            # Upload image with preserved quality
+            else:
+                # Handle raster images (PNG, JPEG) with PIL processing
+                from PIL import Image
+                import io
+
+                # Open and validate the image
+                with Image.open(image_path) as img:
+                    # Log image details for debugging
+                    self.logger.info(f"Image format: {img.format}, Size: {img.size}, Mode: {img.mode}")
+
+                    # Ensure image is high quality (300+ DPI equivalent)
+                    if hasattr(img, 'info') and 'dpi' in img.info:
+                        dpi = img.info['dpi']
+                        self.logger.info(f"Image DPI: {dpi}")
+
+                    # Optimize image for print quality
+                    # Ensure minimum resolution for print (300 DPI equivalent)
+                    min_size = 3000  # Minimum 3000px for high quality print
+                    if min(img.size) < min_size:
+                        # Resize maintaining aspect ratio
+                        ratio = min_size / min(img.size)
+                        new_size = (int(img.size[0] * ratio), int(img.size[1] * ratio))
+                        img = img.resize(new_size, Image.Resampling.LANCZOS)
+                        self.logger.info(f"Upscaled image to {new_size} for print quality")
+
+                    # Ensure transparency is preserved for PNG
+                    if img.format == 'PNG' and img.mode in ('RGBA', 'LA'):
+                        self.logger.info("PNG with transparency detected - preserving alpha channel")
+                    elif img.format == 'PNG' and img.mode != 'RGBA':
+                        # Convert to RGBA to ensure transparency support
+                        img = img.convert('RGBA')
+                        self.logger.info("Converted PNG to RGBA for transparency support")
+
+                    # Check if file is already optimized (has proper DPI and reasonable size)
+                    file_size_mb = os.path.getsize(image_path) / (1024 * 1024)
+                    has_proper_dpi = hasattr(img, 'info') and 'dpi' in img.info and img.info['dpi'][0] >= 300
+
+                    if file_size_mb <= 10 and has_proper_dpi and img.mode == 'RGBA':
+                        # File is already optimized, use it directly
+                        with open(image_path, 'rb') as f:
+                            image_data = f.read()
+                        self.logger.info(f"Using pre-optimized file: {file_size_mb:.1f}MB, DPI: {img.info.get('dpi', 'N/A')}")
+                    else:
+                        # Apply optimization
+                        output_buffer = io.BytesIO()
+                        if img.format == 'PNG' or img.mode == 'RGBA':
+                            # Smart compression based on file size
+                            if file_size_mb > 10:
+                                # Aggressive compression for large files
+                                img.save(output_buffer, format='PNG', optimize=True, compress_level=9)
+                                self.logger.info("Applied aggressive compression for large PNG")
+                            elif file_size_mb > 5:
+                                # Moderate compression for medium files
+                                img.save(output_buffer, format='PNG', optimize=True, compress_level=6)
+                                self.logger.info("Applied moderate compression for PNG")
+                            else:
+                                # Light compression for small files
+                                img.save(output_buffer, format='PNG', optimize=True, compress_level=3)
+                                self.logger.info("Applied light compression for PNG")
+                        else:
+                            # For JPEG, use high quality
+                            img.save(output_buffer, format='JPEG', quality=95, optimize=True)
+                            self.logger.info("Saved as JPEG with 95% quality")
+
+                        image_data = output_buffer.getvalue()
+
+                    # Final file size check
+                    final_size_mb = len(image_data) / (1024 * 1024)
+                    if final_size_mb > 15:
+                        self.logger.warning(f"Very large file size: {final_size_mb:.1f}MB - may cause upload issues")
+                    elif final_size_mb > 8:
+                        self.logger.warning(f"Large file size: {final_size_mb:.1f}MB - upload may take longer")
+                    else:
+                        self.logger.info(f"Optimized file size: {final_size_mb:.1f}MB")
+
+                    # Convert to base64 for API upload
+                    image_base64 = base64.b64encode(image_data).decode('utf-8')
+
+            # Upload image with preserved quality and extended timeout
             endpoint = "/uploads/images.json"
             data = {
                 "file_name": Path(image_path).name,
                 "contents": image_base64
             }
 
-            response = self.make_request("POST", endpoint, data=data)
+            # Use extended timeout for large uploads
+            final_size_mb = len(image_data) / (1024 * 1024)
+            upload_timeout = 300 if final_size_mb > 5 else 120  # 5 min for large, 2 min for medium
+            self.logger.info(f"Starting upload with {upload_timeout}s timeout...")
+
+            response = self.make_request("POST", endpoint, data=data, timeout=upload_timeout)
 
             if response.status_code not in [200, 201]:
                 raise Exception(f"Failed to upload image: {response.status_code} - {response.text}")
@@ -228,8 +301,7 @@ class PrintifyAPIClient:
             image_id = image_response.get("id")
 
             # Log upload success with quality info
-            file_size_mb = len(image_data) / (1024 * 1024)
-            self.logger.info(f"Image uploaded with ID: {image_id}, Size: {file_size_mb:.1f}MB")
+            self.logger.info(f"Image uploaded with ID: {image_id}, Size: {final_size_mb:.1f}MB")
             return str(image_id)
 
         except Exception as e:
@@ -267,12 +339,27 @@ class PrintifyAPIClient:
             self.logger.error(f"Failed to get variants for blueprint {blueprint_id}, provider {print_provider_id}: {e}")
             raise
     
-    def create_product_with_user_config(self, title: str, description: str,
-                                       blueprint_id: int, print_provider_id: int,
-                                       design_file_path: str) -> str:
+    def create_product_with_draft_publishing(self, title: str, description: str,
+                                           blueprint_id: int, print_provider_id: int,
+                                           design_file_path: str, tags: List[str] = None) -> Dict:
         """
-        Create product using user's exact configuration and working product structure.
-        This method ensures all 318 variants are created with the correct colors.
+        Create Printify product and publish as DRAFT to Etsy for the hybrid workflow.
+
+        This method:
+        1. Creates product with correct pricing/variants/design placement
+        2. Publishes as DRAFT to Etsy to get listing ID
+        3. Returns structured data for Airtable integration
+
+        Args:
+            title: Product title
+            description: Product description
+            blueprint_id: Printify blueprint ID
+            print_provider_id: Print provider ID
+            design_file_path: Path to Printify-optimized design
+            tags: List of tags for Etsy (optional)
+
+        Returns:
+            Dict with product_id, etsy_draft_id, and structured data for Airtable
         """
         try:
             self.logger.info(f"Creating product with user config: {title}")
@@ -351,7 +438,7 @@ class PrintifyAPIClient:
                                     {
                                         "id": design_image_id,
                                         "x": 0.5,  # Center placement horizontally
-                                        "y": 0.35,  # Higher placement for optimal chest area
+                                        "y": 0.5,  # Lower placement for proper chest positioning
                                         "scale": 1.0,  # Standard scale - let design size determine visibility
                                         "angle": 0
                                     }
@@ -380,16 +467,206 @@ class PrintifyAPIClient:
             product_id = product_response.get("id")
 
             self.logger.info(f"Product created successfully with ID: {product_id}")
-            self.logger.info("Product saved as DRAFT (not published to avoid going live)")
 
-            # DO NOT publish automatically - keep as draft to avoid live listings
-            # User can manually publish when ready or use separate publish method
+            # Publish as DRAFT to Etsy to get listing ID for the hybrid workflow
+            etsy_draft_result = self._publish_draft_to_etsy(product_id, title, description, tags or [])
 
-            return str(product_id)
+            # Structure data for Airtable integration
+            result = self._structure_for_airtable(
+                product_id=product_id,
+                etsy_draft_result=etsy_draft_result,
+                title=title,
+                description=description,
+                tags=tags or [],
+                user_color_variants=user_color_variants,
+                blueprint_id=blueprint_id,
+                print_provider_id=print_provider_id,
+                design_file_path=design_file_path
+            )
+
+            self.logger.info(f"Hybrid workflow data prepared for Airtable integration")
+            return result
 
         except Exception as e:
-            self.logger.error(f"Failed to create product with user config: {e}")
+            self.logger.error(f"Failed to create product with draft publishing: {e}")
             raise
+
+    def _publish_draft_to_etsy(self, product_id: str, title: str, description: str, tags: List[str]) -> Dict:
+        """
+        Publish Printify product as DRAFT to Etsy to get listing ID.
+        This is part of the hybrid workflow where we get the Etsy listing ID
+        but keep it as draft for later completion with custom mockups.
+        """
+        try:
+            self.logger.info(f"Publishing product {product_id} as DRAFT to Etsy")
+
+            # Prepare publishing data for draft
+            publish_data = {
+                "title": True,  # Use Printify title initially
+                "description": True,  # Use Printify description initially
+                "images": False,  # Don't publish Printify mockups - we'll use custom ones
+                "variants": True,  # Publish all variants for pricing structure
+                "tags": True if tags else False,  # Use tags if provided
+                "keyFeatures": False,  # Don't publish key features initially
+                "shipping_template": True,  # Use free shipping template
+                "sync_product_details": True  # CRITICAL: Enable sync for draft publishing to work
+            }
+
+            # Publish to Etsy
+            endpoint = f"/shops/{self.shop_id}/products/{product_id}/publish.json"
+            response = self.make_request("POST", endpoint, data=publish_data)
+
+            if response.status_code not in [200, 201]:
+                self.logger.warning(f"Draft publishing failed: {response.status_code} - {response.text}")
+                return {
+                    "status": "draft_publish_failed",
+                    "etsy_listing_id": None,
+                    "error": f"HTTP {response.status_code}: {response.text}"
+                }
+
+            publish_response = response.json()
+
+            # Extract Etsy listing ID from response
+            etsy_listing_id = None
+            if "external" in publish_response:
+                external_data = publish_response["external"]
+                if isinstance(external_data, list) and len(external_data) > 0:
+                    etsy_listing_id = external_data[0].get("id")
+                elif isinstance(external_data, dict):
+                    etsy_listing_id = external_data.get("id")
+
+            # Check product for external ID if not in response
+            if not etsy_listing_id:
+                product_data = self.get_product(product_id)
+                if product_data and "external" in product_data:
+                    external_list = product_data["external"]
+                    if external_list and len(external_list) > 0:
+                        etsy_listing_id = external_list[0].get("id")
+
+            result = {
+                "status": "draft_published" if etsy_listing_id else "draft_pending",
+                "etsy_listing_id": etsy_listing_id,
+                "etsy_url": f"https://www.etsy.com/listing/{etsy_listing_id}" if etsy_listing_id else None,
+                "note": "Draft created on Etsy. Ready for custom mockups and final publishing."
+            }
+
+            if etsy_listing_id:
+                self.logger.info(f"Draft published to Etsy successfully: {etsy_listing_id}")
+                # Confirm publishing success
+                self._confirm_publishing_success(product_id, etsy_listing_id)
+            else:
+                self.logger.info("Draft publishing initiated. Listing ID will be available shortly.")
+
+            return result
+
+        except Exception as e:
+            self.logger.error(f"Failed to publish draft to Etsy: {e}")
+            return {
+                "status": "draft_publish_error",
+                "etsy_listing_id": None,
+                "error": str(e)
+            }
+
+    def _structure_for_airtable(self, product_id: str, etsy_draft_result: Dict,
+                               title: str, description: str, tags: List[str],
+                               user_color_variants: List[Dict], blueprint_id: int,
+                               print_provider_id: int, design_file_path: str) -> Dict:
+        """
+        Structure all data for Airtable integration in the hybrid workflow.
+        This provides everything Airtable needs to complete the listing process.
+        """
+        try:
+            # Extract variant information for Airtable
+            variant_data = []
+            colors_available = set()
+            sizes_available = set()
+            price_range = {"min": float('inf'), "max": 0}
+
+            for variant in user_color_variants:
+                if variant.get('is_enabled', False):
+                    title_parts = variant.get('title', '').split(' / ')
+                    if len(title_parts) >= 2:
+                        color = title_parts[0].strip()
+                        size = title_parts[1].strip()
+                        price = variant.get('price', 0) / 100  # Convert to dollars
+
+                        colors_available.add(color)
+                        sizes_available.add(size)
+                        price_range["min"] = min(price_range["min"], price)
+                        price_range["max"] = max(price_range["max"], price)
+
+                        variant_data.append({
+                            "printify_variant_id": variant.get('id'),
+                            "color": color,
+                            "size": size,
+                            "price": price,
+                            "sku": variant.get('sku', ''),
+                            "is_available": variant.get('is_available', True)
+                        })
+
+            # Structure complete data for Airtable
+            airtable_data = {
+                # Core product information
+                "printify_product_id": product_id,
+                "etsy_draft_listing_id": etsy_draft_result.get("etsy_listing_id"),
+                "etsy_draft_url": etsy_draft_result.get("etsy_url"),
+                "draft_status": etsy_draft_result.get("status"),
+
+                # Listing content (for Airtable to manage)
+                "title": title,
+                "description": description,
+                "tags": tags,
+                "blueprint_id": blueprint_id,
+                "print_provider_id": print_provider_id,
+
+                # Product specifications
+                "colors_available": sorted(list(colors_available)),
+                "sizes_available": sorted(list(sizes_available)),
+                "total_variants": len(variant_data),
+                "price_range": f"${price_range['min']:.2f} - ${price_range['max']:.2f}",
+                "shipping": "FREE",
+
+                # Design information
+                "design_file_path": design_file_path,
+                "design_placement": {"x": 0.5, "y": 0.05, "scale": 1.0, "angle": 0},
+
+                # Workflow status
+                "workflow_stage": "draft_created",
+                "ready_for_mockups": True,
+                "ready_for_final_publishing": False,
+
+                # Detailed variant data
+                "variants": variant_data,
+
+                # Timestamps
+                "created_at": datetime.now().isoformat(),
+                "updated_at": datetime.now().isoformat(),
+
+                # Next steps for automation
+                "next_steps": [
+                    "Generate custom mockups",
+                    "Upload mockups to Google Sheets",
+                    "Update Airtable with mockup URLs",
+                    "Publish final listing to Etsy"
+                ]
+            }
+
+            self.logger.info(f"Structured data for Airtable: {len(variant_data)} variants, {len(colors_available)} colors")
+            return airtable_data
+
+        except Exception as e:
+            self.logger.error(f"Failed to structure data for Airtable: {e}")
+            # Return minimal data structure on error
+            return {
+                "printify_product_id": product_id,
+                "etsy_draft_listing_id": etsy_draft_result.get("etsy_listing_id"),
+                "title": title,
+                "description": description,
+                "tags": tags,
+                "workflow_stage": "error",
+                "error": str(e),
+                "created_at": datetime.now().isoformat()
+            }
 
     def create_printify_product_only(self, title: str, description: str,
                                     design_file_path: str, blueprint_id: int = 12,
@@ -448,7 +725,7 @@ class PrintifyAPIClient:
                                     {
                                         "id": design_image_id,
                                         "x": 0.5,  # Center horizontally
-                                        "y": 0.35,  # Optimal chest placement
+                                        "y": 0.05,  # +5% to compensate for Printify's -5% offset
                                         "scale": 1.0,  # Standard scale
                                         "angle": 0
                                     }
@@ -497,7 +774,7 @@ class PrintifyAPIClient:
                 "variants": user_color_variants,
                 "design_placement": {
                     "x": 0.5,
-                    "y": 0.35,
+                    "y": 0.05,
                     "scale": 1.0,
                     "angle": 0
                 },
@@ -593,7 +870,7 @@ class PrintifyAPIClient:
                 'colors_available': list(variant_map.keys()),
                 'variant_map': variant_map,
                 'design_info': {
-                    'placement': {'x': 0.5, 'y': 0.35, 'scale': 1.0, 'angle': 0},
+                    'placement': {'x': 0.5, 'y': 0.05, 'scale': 1.0, 'angle': 0},
                     'file_path': design_file_path
                 },
                 'pricing': {
@@ -639,7 +916,8 @@ class PrintifyAPIClient:
                 "variants": True,  # Publish all enabled variants
                 "tags": True,  # Publish Printify tags
                 "keyFeatures": [],  # Additional features
-                "shipping_template": True  # Use Etsy shipping template with free shipping
+                "shipping_template": True,  # Use Etsy shipping template with free shipping
+                "sync_product_details": True  # Enable sync for proper publishing
             }
 
             # Publish to connected Etsy store
