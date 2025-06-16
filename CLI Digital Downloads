@@ -1,0 +1,11 @@
+# Run batch mode (process all designs in the folder)
+python pipeline.py --mode batch --verbose
+
+# Run validate mode (process only first design for testing)
+python pipeline.py --mode validate --verbose
+
+# Run batch mode without verbose output
+python pipeline.py --mode batch
+
+# Run validate mode without verbose output
+python pipeline.py --mode validate
