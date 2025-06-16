@@ -23,14 +23,23 @@ from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 import numpy as np
 import sys
 from copy import deepcopy
+import cv2
 
 # Add utils to path for output manager
 sys.path.append(str(Path(__file__).parent.parent))
 from utils.output_manager import OutputManager
-from modules.sheets_mockup_uploader import SheetsMockupUploader
 
 # Set up logging
 logger = logging.getLogger("custom_mockup_generator")
+
+# Optional Google Sheets integration
+try:
+    from modules.sheets_mockup_uploader import SheetsMockupUploader
+    SHEETS_AVAILABLE = True
+except ImportError:
+    logger.warning("Google Sheets integration not available - continuing without it")
+    SheetsMockupUploader = None
+    SHEETS_AVAILABLE = False
 
 
 class MockupTemplate:
@@ -111,6 +120,9 @@ class CustomMockupGenerator:
         # Load template configurations
         self.templates = self._load_templates()
 
+        # Load VIA coordinates for poster perspective transformation
+        self.poster_via_configs = self._load_via_coordinates()
+
         # Initialize Google Sheets uploader if enabled
         self.enable_sheets_upload = enable_sheets_upload
         self.sheets_uploader = None
@@ -173,7 +185,106 @@ class CustomMockupGenerator:
                 logger.info(f"Loaded {len(templates[product_type])} {product_type} templates")
 
         return templates
-    
+
+    def _load_via_coordinates(self) -> Dict[str, Dict[str, Any]]:
+        """
+        Load precise coordinates from VIA annotation files for poster perspective transformation.
+
+        Returns:
+            Dictionary of poster template configurations with VIA coordinates
+        """
+        try:
+            # Map VIA files to template files
+            via_mapping = {
+                "1.jpg": "via_project_15Jun2025_9h52m_json.json",
+                "2.jpg": "via_project_15Jun2025_9h52m_json (1).json",
+                "3.jpg": "via_project_15Jun2025_9h52m_json (2).json",
+                "5.jpg": "via_project_15Jun2025_9h52m_json (3).json",
+                "6.jpg": "via_project_15Jun2025_9h52m_json (4).json",
+                "7.jpg": "via_project_15Jun2025_9h52m_json (5).json",
+                "8.jpg": "via_project_15Jun2025_9h52m_json (6).json",
+                "9.png": "via_export_json.json"
+            }
+
+            # Template names and types
+            template_info = {
+                "1.jpg": {"name": "Straight Front View Poster", "perspective_type": "straight", "difficulty": "easy"},
+                "2.jpg": {"name": "Angled Poster Frame", "perspective_type": "angled", "difficulty": "medium"},
+                "3.jpg": {"name": "Side Angle Poster", "perspective_type": "side_angle", "difficulty": "medium"},
+                "5.jpg": {"name": "Living Room Poster", "perspective_type": "room_context", "difficulty": "easy"},
+                "6.jpg": {"name": "Tilted Frame Poster", "perspective_type": "tilted", "difficulty": "hard"},
+                "7.jpg": {"name": "Modern Frame Poster", "perspective_type": "modern", "difficulty": "medium"},
+                "8.jpg": {"name": "Artistic Angle Poster", "perspective_type": "artistic", "difficulty": "hard"},
+                "9.png": {"name": "New Template Poster", "perspective_type": "straight", "difficulty": "easy"}
+            }
+
+            coordinates_data = {}
+
+            for template_file, via_file in via_mapping.items():
+                via_path = Path(f"assets/mockups/posters/{via_file}")
+
+                if not via_path.exists():
+                    continue
+
+                with open(via_path, 'r') as f:
+                    via_data = json.load(f)
+
+                # Extract the first (and only) entry
+                file_key = list(via_data.keys())[0]
+                file_info = via_data[file_key]
+
+                regions = file_info.get('regions', [])
+                if not regions:
+                    continue
+
+                region = regions[0]
+                shape_attrs = region['shape_attributes']
+
+                # Handle different shape types
+                if shape_attrs['name'] == 'rect':
+                    # Rectangle coordinates
+                    x = shape_attrs['x']
+                    y = shape_attrs['y']
+                    width = shape_attrs['width']
+                    height = shape_attrs['height']
+
+                    # Convert to corner points [top-left, top-right, bottom-right, bottom-left]
+                    corners = [
+                        (x, y),                    # Top-left
+                        (x + width, y),            # Top-right
+                        (x + width, y + height),   # Bottom-right
+                        (x, y + height)            # Bottom-left
+                    ]
+
+                elif shape_attrs['name'] == 'polyline':
+                    # Polyline coordinates (for angled/perspective frames)
+                    x_points = shape_attrs['all_points_x']
+                    y_points = shape_attrs['all_points_y']
+
+                    # Take first 4 points as corners
+                    corners = [(x_points[i], y_points[i]) for i in range(min(4, len(x_points)))]
+
+                else:
+                    continue
+
+                # Create configuration with VIA coordinates and template info
+                config = template_info.get(template_file, {
+                    "name": f"Template {template_file}",
+                    "perspective_type": "unknown",
+                    "difficulty": "medium"
+                })
+                config['corners'] = corners
+                config['via_source'] = via_file
+
+                coordinates_data[template_file] = config
+
+            logger.info(f"Loaded VIA coordinates for {len(coordinates_data)} poster templates")
+            return coordinates_data
+
+        except Exception as e:
+            logger.warning(f"Could not load VIA coordinates: {e}")
+            return {}
+
     def _resize_design_to_fit(self, design: Image.Image, target_area: Tuple[int, int, int, int],
                              template: MockupTemplate) -> Image.Image:
         """
@@ -229,7 +340,177 @@ class CustomMockupGenerator:
         # This would involve more complex transformations
         
         return design
-    
+
+    def _is_rectangular_frame(self, corners: List[Tuple[int, int]], tolerance: int = 5) -> bool:
+        """
+        Check if the 4 corners form a rectangular frame (straight view) or angled frame.
+
+        Args:
+            corners: List of 4 corner points [(x1,y1), (x2,y2), (x3,y3), (x4,y4)]
+                     Expected order: [top-left, top-right, bottom-right, bottom-left]
+            tolerance: Pixel tolerance for "straight" lines
+
+        Returns:
+            True if rectangular (use direct placement), False if angled (use perspective)
+        """
+        if len(corners) != 4:
+            return False
+
+        x1, y1 = corners[0]  # Top-left
+        x2, y2 = corners[1]  # Top-right
+        x3, y3 = corners[2]  # Bottom-right
+        x4, y4 = corners[3]  # Bottom-left
+
+        # Check if top edge is horizontal (y1 ≈ y2)
+        top_horizontal = abs(y1 - y2) <= tolerance
+
+        # Check if bottom edge is horizontal (y3 ≈ y4)
+        bottom_horizontal = abs(y3 - y4) <= tolerance
+
+        # Check if left edge is vertical (x1 ≈ x4)
+        left_vertical = abs(x1 - x4) <= tolerance
+
+        # Check if right edge is vertical (x2 ≈ x3)
+        right_vertical = abs(x2 - x3) <= tolerance
+
+        # All edges must be straight for rectangular frame
+        is_rect = top_horizontal and bottom_horizontal and left_vertical and right_vertical
+
+        logger.debug(f"Frame analysis: top_h={top_horizontal}, bottom_h={bottom_horizontal}, "
+                    f"left_v={left_vertical}, right_v={right_vertical} → {'RECTANGULAR' if is_rect else 'ANGLED'}")
+
+        return is_rect
+
+    def _apply_clean_placement(self, design: Image.Image,
+                             corner_points: List[Tuple[int, int]]) -> Tuple[Image.Image, Tuple[int, int]]:
+        """
+        Apply clean design placement within VIA coordinates (no perspective transformation).
+        For rectangular frames only.
+
+        Args:
+            design: Design image to place
+            corner_points: Four corner points [top-left, top-right, bottom-right, bottom-left]
+
+        Returns:
+            Tuple of (resized design, placement position)
+        """
+        # Calculate target area from VIA coordinates
+        x1, y1 = corner_points[0]  # Top-left
+        x2, y2 = corner_points[2]  # Bottom-right
+
+        target_width = x2 - x1
+        target_height = y2 - y1
+
+        logger.debug(f"Clean placement area: {target_width} x {target_height} at ({x1}, {y1})")
+
+        # Resize design to fit target area exactly
+        resized_design = design.resize((target_width, target_height), Image.Resampling.LANCZOS)
+
+        return resized_design, (x1, y1)
+
+    def _apply_perspective_transform(self, design: Image.Image,
+                                   corner_points: List[Tuple[int, int]],
+                                   template_size: Tuple[int, int]) -> Image.Image:
+        """
+        Apply perspective transformation to design based on angled corner points.
+        For angled frames only.
+
+        Args:
+            design: Design image to transform
+            corner_points: Four corner points [top-left, top-right, bottom-right, bottom-left]
+            template_size: Size of the template image (width, height)
+
+        Returns:
+            Transformed design image with template dimensions
+        """
+        # Convert PIL image to numpy array (keep RGBA format)
+        design_array = np.array(design)
+
+        # Define source points (original rectangle)
+        src_points = np.float32([
+            [0, 0],                           # Top-left
+            [design.width, 0],                # Top-right
+            [design.width, design.height],    # Bottom-right
+            [0, design.height]                # Bottom-left
+        ])
+
+        # Define destination points (angled perspective corners)
+        dst_points = np.float32(corner_points)
+
+        # Calculate perspective transformation matrix
+        matrix = cv2.getPerspectiveTransform(src_points, dst_points)
+
+        # Use template size for output canvas to ensure proper compositing
+        template_width, template_height = template_size
+
+        logger.debug(f"Perspective transform: {design.size} → {template_width}x{template_height}")
+        logger.debug(f"Corner points: {corner_points}")
+
+        # Apply perspective transformation with template-sized canvas
+        # Use BORDER_CONSTANT with transparent value to avoid blue grain artifacts
+        transformed = cv2.warpPerspective(
+            design_array,
+            matrix,
+            (template_width, template_height),
+            flags=cv2.INTER_LANCZOS4,
+            borderMode=cv2.BORDER_CONSTANT,
+            borderValue=(0, 0, 0, 0)  # Transparent border
+        )
+
+        # Convert back to PIL format (already in RGBA format)
+        transformed_pil = Image.fromarray(transformed, 'RGBA')
+
+        return transformed_pil
+
+    def _create_clean_overlay(self, template: Image.Image,
+                            resized_design: Image.Image,
+                            placement_position: Tuple[int, int]) -> Image.Image:
+        """
+        Create final mockup by placing design directly at VIA coordinates.
+
+        Args:
+            template: Template mockup image
+            resized_design: Design resized to fit target area
+            placement_position: Exact position to place design (x, y)
+
+        Returns:
+            Final mockup image
+        """
+        # Create a copy of the template
+        result = template.copy().convert('RGBA')
+
+        # Paste design directly at VIA coordinates
+        result.paste(resized_design, placement_position, resized_design)
+
+        return result
+
+    def _create_perspective_overlay(self, template: Image.Image,
+                                  transformed_design: Image.Image,
+                                  corner_points: List[Tuple[int, int]]) -> Image.Image:
+        """
+        Create final mockup by overlaying perspective-transformed design on template.
+        For angled frames only.
+
+        Args:
+            template: Template mockup image
+            transformed_design: Perspective-transformed design (already template-sized)
+            corner_points: Corner points for positioning (for reference only)
+
+        Returns:
+            Final mockup image
+        """
+        # Create a copy of the template
+        result = template.copy().convert('RGBA')
+
+        # Since transformed_design is already template-sized and positioned correctly,
+        # we can directly composite it with the template
+        logger.debug(f"Compositing transformed design {transformed_design.size} with template {template.size}")
+
+        # Direct alpha composite - the perspective transform already positioned everything correctly
+        result = Image.alpha_composite(result, transformed_design)
+
+        return result
+
     def _blend_design_with_template(self, template_img: Image.Image, design: Image.Image,
                                    position: Tuple[int, int], blend_mode: str) -> Image.Image:
         """
@@ -345,27 +626,88 @@ class CustomMockupGenerator:
             
             # Load template
             template_img = template.load()
-            
-            # Resize design to fit with template-specific padding factor
-            design_resized = self._resize_design_to_fit(design, template.design_area, template)
-            
-            # Apply realistic effects
-            design_processed = self._apply_realistic_effects(design_resized, template)
-            
-            # Calculate position
-            if custom_position:
-                position = custom_position
+
+            # Handle poster perspective transformation if VIA coordinates are available
+            if product_type == 'posters' and f"{template.name}.jpg" in self.poster_via_configs:
+                # Use perspective transformation for posters with VIA coordinates
+                via_config = self.poster_via_configs[f"{template.name}.jpg"]
+                corner_points = via_config['corners']
+
+                logger.info(f"Using VIA coordinates for poster {template.name}: {corner_points}")
+
+                # Detect frame type and apply appropriate transformation
+                if self._is_rectangular_frame(corner_points):
+                    logger.info(f"RECTANGULAR frame detected - applying clean placement")
+
+                    # Apply clean placement (no perspective transformation needed)
+                    design_processed, position = self._apply_clean_placement(design, corner_points)
+
+                    # Create final mockup with direct placement
+                    final_mockup = self._create_clean_overlay(template_img, design_processed, position)
+
+                else:
+                    logger.info(f"ANGLED frame detected - applying perspective transformation")
+
+                    # Apply perspective transformation for angled frames
+                    design_processed = self._apply_perspective_transform(design, corner_points, template_img.size)
+
+                    # Create final mockup with perspective overlay
+                    final_mockup = self._create_perspective_overlay(template_img, design_processed, corner_points)
+
+                # Set position for result reporting
+                position = corner_points[0] if corner_points else (0, 0)
+
+            elif product_type == 'posters' and f"{template.name}.png" in self.poster_via_configs:
+                # Handle PNG templates (like 9.png)
+                via_config = self.poster_via_configs[f"{template.name}.png"]
+                corner_points = via_config['corners']
+
+                logger.info(f"Using VIA coordinates for poster {template.name}: {corner_points}")
+
+                # Detect frame type and apply appropriate transformation
+                if self._is_rectangular_frame(corner_points):
+                    logger.info(f"RECTANGULAR frame detected - applying clean placement")
+
+                    # Apply clean placement (no perspective transformation needed)
+                    design_processed, position = self._apply_clean_placement(design, corner_points)
+
+                    # Create final mockup with direct placement
+                    final_mockup = self._create_clean_overlay(template_img, design_processed, position)
+
+                else:
+                    logger.info(f"ANGLED frame detected - applying perspective transformation")
+
+                    # Apply perspective transformation for angled frames
+                    design_processed = self._apply_perspective_transform(design, corner_points, template_img.size)
+
+                    # Create final mockup with perspective overlay
+                    final_mockup = self._create_perspective_overlay(template_img, design_processed, corner_points)
+
+                # Set position for result reporting
+                position = corner_points[0] if corner_points else (0, 0)
+
             else:
-                # Center design in design area
-                area = template.design_area
-                center_x = area[0] + (area[2] - area[0] - design_processed.width) // 2
-                center_y = area[1] + (area[3] - area[1] - design_processed.height) // 2
-                position = (center_x, center_y)
-            
-            # Blend design with template
-            final_mockup = self._blend_design_with_template(
-                template_img, design_processed, position, template.blend_mode
-            )
+                # Standard processing for t-shirts, sweatshirts, and posters without VIA coordinates
+                # Resize design to fit with template-specific padding factor
+                design_resized = self._resize_design_to_fit(design, template.design_area, template)
+
+                # Apply realistic effects
+                design_processed = self._apply_realistic_effects(design_resized, template)
+
+                # Calculate position
+                if custom_position:
+                    position = custom_position
+                else:
+                    # Center design in design area
+                    area = template.design_area
+                    center_x = area[0] + (area[2] - area[0] - design_processed.width) // 2
+                    center_y = area[1] + (area[3] - area[1] - design_processed.height) // 2
+                    position = (center_x, center_y)
+
+                # Blend design with template
+                final_mockup = self._blend_design_with_template(
+                    template_img, design_processed, position, template.blend_mode
+                )
             
             # Generate output filename
             design_name = Path(design_path).stem
