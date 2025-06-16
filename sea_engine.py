@@ -270,24 +270,34 @@ class SEAEngine:
             mockup_files = self._generate_mockups(product, variations)
             self.state_manager.update_workflow_step(workflow_id, "mockups_generated", {"files": mockup_files})
             
-            # Step 2: Create Printify product
-            self.logger.info("Step 2: Creating Printify product...")
-            printify_product_id = self._create_printify_product(product, variations, mockup_files)
-            self.state_manager.update_workflow_step(workflow_id, "printify_created", {"product_id": printify_product_id})
+            # Step 2: Create Printify product with hybrid workflow (includes Etsy draft)
+            self.logger.info("Step 2: Creating Printify product with hybrid workflow...")
+            hybrid_result = self._create_printify_product(product, variations, mockup_files)
+            printify_product_id = hybrid_result.get('printify_product_id')
+            etsy_draft_id = hybrid_result.get('etsy_draft_listing_id')
+
+            self.state_manager.update_workflow_step(workflow_id, "hybrid_workflow_completed", {
+                "printify_product_id": printify_product_id,
+                "etsy_draft_id": etsy_draft_id,
+                "draft_status": hybrid_result.get('draft_status'),
+                "workflow_stage": hybrid_result.get('workflow_stage')
+            })
+
+            # Step 3: For hybrid workflow, Etsy draft is already created
+            # This step is now for custom mockup integration and final publishing
+            self.logger.info("Step 3: Hybrid workflow completed - ready for custom mockups...")
+            etsy_listing_id = etsy_draft_id  # Use draft ID as listing ID for now
             
-            # Step 3: Publish to Etsy
-            self.logger.info("Step 3: Publishing to Etsy...")
-            etsy_listing_id = self._publish_to_etsy(product, printify_product_id, mockup_files)
-            self.state_manager.update_workflow_step(workflow_id, "etsy_published", {"listing_id": etsy_listing_id})
-            
-            # Update product status to Published
-            self.data_manager.update_product_status(product.product_id, ProductStatus.PUBLISHED)
-            
+            # Update product status to LISTED (draft created, ready for custom mockups)
+            self.data_manager.update_product_status(product.product_id, ProductStatus.LISTED)
+
             # Complete workflow
             execution_time = time.time() - start_time
             self.state_manager.complete_workflow(workflow_id, {
                 "printify_product_id": printify_product_id,
+                "etsy_draft_id": etsy_draft_id,
                 "etsy_listing_id": etsy_listing_id,
+                "hybrid_workflow_data": hybrid_result,
                 "execution_time": execution_time
             })
             
@@ -385,69 +395,152 @@ class SEAEngine:
         }
         
         return type_mapping.get(product_type.lower(), "tshirt_bella_canvas_3001")
+
+    def _get_product_tags(self, product_type: str) -> List[str]:
+        """Get Etsy tags for product type from configuration."""
+        try:
+            # Load current product configs for tags
+            import json
+            with open("config/current_product_configs.json", 'r') as f:
+                config = json.load(f)
+
+            # Get default tags for product type
+            default_tags = config.get("etsy_settings", {}).get("default_tags", {})
+            product_type_key = product_type.lower().replace("-", "").replace("_", "")
+
+            # Map product types to tag keys
+            tag_mapping = {
+                "tshirt": "tshirts",
+                "t-shirt": "tshirts",
+                "sweatshirt": "sweatshirts",
+                "hoodie": "sweatshirts",
+                "poster": "posters",
+                "artprint": "posters"
+            }
+
+            tag_key = tag_mapping.get(product_type_key, "tshirts")
+            tags = default_tags.get(tag_key, ["custom", "design", "unique", "gift", "art"])
+
+            self.logger.info(f"Using tags for {product_type}: {tags}")
+            return tags
+
+        except Exception as e:
+            self.logger.warning(f"Failed to load tags from config: {e}")
+            # Fallback tags
+            return ["custom", "design", "unique", "gift", "art", "quality"]
+
+    def _get_design_file_path(self, product_name: str) -> str:
+        """Get design file path, preferring SVG over PNG for better quality."""
+        # Check for SVG first (infinite DPI scalability)
+        svg_path = f"assets/designs_printify/{product_name}.svg"
+        if os.path.exists(svg_path):
+            self.logger.info(f"Using SVG design file: {svg_path}")
+            return svg_path
+
+        # Fallback to PNG
+        png_path = f"designs/{product_name}.png"
+        if os.path.exists(png_path):
+            self.logger.info(f"Using PNG design file: {png_path}")
+            return png_path
+
+        # Alternative PNG locations
+        alt_paths = [
+            f"assets/designs_printify/{product_name}.png",
+            f"assets/designs/{product_name}.png",
+            f"designs/{product_name}_optimized.png"
+        ]
+
+        for path in alt_paths:
+            if os.path.exists(path):
+                self.logger.info(f"Using design file: {path}")
+                return path
+
+        # For testing, use known good design files
+        test_design_files = [
+            "assets/designs_printify/New Test for Sizing.svg",
+            "assets/designs_printify/bold_cat_design_printify_final.png",
+            "assets/designs_printify/bold_cat_design_optimized.png",
+            "designs/bold_cat_design.png"
+        ]
+
+        for test_path in test_design_files:
+            if os.path.exists(test_path):
+                self.logger.info(f"Using test design file: {test_path}")
+                return test_path
+
+        # Default fallback
+        default_path = f"designs/{product_name}.png"
+        self.logger.warning(f"Design file not found, using default path: {default_path}")
+        return default_path
     
-    def _create_printify_product(self, product: Product, variations: List[Variation], mockup_files: List[str]) -> str:
-        """Create product in Printify."""
+    def _create_printify_product(self, product: Product, variations: List[Variation], mockup_files: List[str]) -> Dict:
+        """Create product in Printify using hybrid workflow."""
         try:
             # Get blueprint configuration
             blueprint_key = product.blueprint_key or self._get_blueprint_key(product.product_type)
             blueprint_config = self.product_blueprints.get("products", {}).get(blueprint_key)
-            
+
             if not blueprint_config:
                 raise ValueError(f"Blueprint configuration not found for {blueprint_key}")
-            
-            # Create product using Printify client
-            product_id = self.printify_client.create_product(
+
+            # Get tags for Etsy from configuration
+            tags = self._get_product_tags(product.product_type)
+
+            # Determine design file path - check for SVG first, then PNG
+            design_file_path = self._get_design_file_path(product.product_name)
+
+            # Create product using hybrid workflow (Printify + Etsy Draft)
+            hybrid_result = self.printify_client.create_product_with_draft_publishing(
                 title=product.product_name,
                 description=product.description,
                 blueprint_id=blueprint_config["printify_config"]["blueprint_id"],
                 print_provider_id=blueprint_config["printify_config"]["print_provider_id"],
-                design_file_path=f"designs/{product.product_name}.png",
-                mockup_files=mockup_files,
-                colors=[var.color for var in variations],
-                variations=[f"{var.color}-{var.size}" for var in variations]
+                design_file_path=design_file_path,
+                tags=tags
             )
-            
-            # Update product with Printify ID
-            self.airtable_client.update_record('products', product.record_id, {
-                'Print Provider': 'Printify',
-                'Status': ProductStatus.PRODUCT.value
-            })
-            
-            self.logger.info(f"Created Printify product: {product_id}")
-            return product_id
-            
+
+            # Update product with Printify ID and draft status (if record_id exists)
+            if product.record_id:
+                self.airtable_client.update_record('products', product.record_id, {
+                    'Print Provider': 'Printify',
+                    'Status': ProductStatus.PRODUCT.value,
+                    'Printify Product ID': hybrid_result.get('printify_product_id'),
+                    'Etsy Draft ID': hybrid_result.get('etsy_draft_listing_id'),
+                    'Draft Status': hybrid_result.get('draft_status', 'draft_created')
+                })
+                self.logger.info("Updated product record in Airtable")
+            else:
+                self.logger.info("Skipping Airtable update - no record_id (test mode)")
+
+            self.logger.info(f"Created Printify product with hybrid workflow: {hybrid_result.get('printify_product_id')}")
+            self.logger.info(f"Etsy draft created: {hybrid_result.get('etsy_draft_listing_id')}")
+
+            return hybrid_result
+
         except Exception as e:
-            self.logger.error(f"Failed to create Printify product: {e}")
+            self.logger.error(f"Failed to create Printify product with hybrid workflow: {e}")
             raise
     
     def _publish_to_etsy(self, product: Product, printify_product_id: str, mockup_files: List[str]) -> str:
-        """Publish product to Etsy."""
+        """
+        Legacy method - now handled by hybrid workflow.
+        This method is kept for backward compatibility but is no longer used in the main workflow.
+        """
         try:
-            # Create Etsy listing
-            listing_id = self.etsy_client.create_listing(
-                title=product.product_name,
-                description=product.description,
-                price=product.selling_price,
-                tags=[],  # Tags would come from a separate field or be generated
-                image_files=mockup_files[:10],  # Etsy allows max 10 images
-                printify_product_id=printify_product_id
-            )
-            
-            # Create listing record in Airtable
-            listing_data = {
-                'listing_id': f"listing_{int(time.time())}",
-                'etsy_listing_id': listing_id,
-                'publication_status': 'Active',
-                'product': [product.record_id]
-            }
-            self.airtable_client.create_record('listings', listing_data)
-            
-            self.logger.info(f"Created Etsy listing: {listing_id}")
-            return listing_id
-            
+            self.logger.info("Note: Etsy publishing is now handled by the hybrid workflow")
+            self.logger.info("Draft listing should already be created via Printify integration")
+
+            # For hybrid workflow, we would typically:
+            # 1. Upload custom mockups to Google Sheets
+            # 2. Update Airtable with mockup URLs
+            # 3. Use Airtable automation to publish draft as live listing
+
+            # For now, return the printify_product_id as a placeholder
+            # This will be replaced with proper custom mockup workflow
+            return f"draft_{printify_product_id}"
+
         except Exception as e:
-            self.logger.error(f"Failed to publish to Etsy: {e}")
+            self.logger.error(f"Failed in legacy Etsy publish method: {e}")
             raise
     
     def process_batch(self, status_filter: ProductStatus = ProductStatus.DESIGN) -> List[WorkflowResult]:

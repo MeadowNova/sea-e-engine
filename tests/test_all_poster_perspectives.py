@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 # Add src to path
-sys.path.append(str(Path(__file__).parent / "src"))
+sys.path.append(str(Path(__file__).parent.parent / "src"))
 
 from modules.perspective_mockup_generator import PerspectiveMockupGenerator, create_test_art_design
 import logging

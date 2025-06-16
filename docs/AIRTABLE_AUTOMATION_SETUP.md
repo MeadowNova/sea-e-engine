@@ -49,16 +49,16 @@ let productId = productRecord.id;
 let colors, sizes;
 switch(productType) {
   case 'T-Shirt':
-    colors = ['Black', 'White', 'Navy', 'Gray', 'Red'];
-    sizes = ['S', 'M', 'L', 'XL', 'XXL'];
+    colors = ['Black', 'White', 'Navy', 'Gray', 'baby blue', 'heather navy', 'natural', 'soft pink', 'solid black blend'];
+    sizes = ['S', 'M', 'L', 'XL', 'XXL', '3XL'];
     break;
   case 'Sweatshirt':
-    colors = ['Black', 'White', 'Navy', 'Gray'];
+    colors = ['Black', 'White', 'Navy', 'Gray', 'ash', 'dark heather', 'light blue', 'light pink', 'sand',];
     sizes = ['S', 'M', 'L', 'XL', 'XXL'];
     break;
   case 'Poster':
     colors = ['Default'];
-    sizes = ['12x16', '16x20', '18x24'];
+    sizes = ['12x16', '16x20', '18x24', '8x10', '9x11', '11x14', '12x18', '20x30', '24x36'];
     break;
   default:
     colors = ['Black', 'White'];
