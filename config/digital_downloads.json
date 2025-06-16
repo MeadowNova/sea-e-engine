@@ -1,0 +1,146 @@
+{
+  "pipeline_settings": {
+    "default_mockups_directory": "/home/ajk/sea-e engine/assets/mockups/posters/Designs for Mockups",
+    "batch_size": 10,
+    "rate_limit_delay": 0.1,
+    "max_retries": 3,
+    "timeout_seconds": 60
+  },
+  
+  "reference_listings": {
+    "digital_art_prints": {
+      "listing_id": null,
+      "description": "Template for digital art prints and wall art",
+      "category": "Art & Collectibles > Prints > Digital Prints"
+    },
+    "coffee_themed": {
+      "listing_id": null,
+      "description": "Template for coffee-themed art",
+      "category": "Art & Collectibles > Prints > Digital Prints"
+    },
+    "cat_art": {
+      "listing_id": null,
+      "description": "Template for cat-themed art",
+      "category": "Art & Collectibles > Prints > Digital Prints"
+    }
+  },
+  
+  "etsy_listing_defaults": {
+    "price": 13.32,
+    "quantity": 999,
+    "who_made": "i_did",
+    "when_made": "2020_2025",
+    "taxonomy_id": 1063,
+    "is_supply": false,
+    "should_auto_renew": true,
+    "type": "download",
+    "materials": ["digital"],
+    "processing_min": 1,
+    "processing_max": 3
+  },
+  
+  "seo_templates": {
+    "art_print_keywords": [
+      "art print",
+      "digital download",
+      "wall art",
+      "printable art",
+      "instant download",
+      "home decor",
+      "digital print",
+      "poster",
+      "artwork"
+    ],
+    
+    "gift_keywords": [
+      "gift",
+      "present",
+      "housewarming gift",
+      "birthday gift",
+      "holiday gift",
+      "unique gift",
+      "thoughtful gift"
+    ],
+    
+    "style_keywords": {
+      "modern": ["modern", "contemporary", "minimalist", "clean"],
+      "vintage": ["vintage", "retro", "classic", "antique"],
+      "boho": ["boho", "bohemian", "eclectic", "artistic"],
+      "abstract": ["abstract", "geometric", "artistic", "creative"]
+    },
+    
+    "subject_keywords": {
+      "cat": ["cat", "kitten", "feline", "pet", "animal"],
+      "coffee": ["coffee", "cafe", "barista", "espresso", "latte"],
+      "space": ["space", "cosmic", "galaxy", "stars", "universe"],
+      "floral": ["floral", "flower", "botanical", "nature", "garden"]
+    }
+  },
+  
+  "file_patterns": {
+    "with_dimensions": "^(.+?)__w=(\\d+)__h=(\\d+)\\.(png|jpg|jpeg)$",
+    "simple": "^(.+)\\.(png|jpg|jpeg)$",
+    "supported_extensions": [".png", ".jpg", ".jpeg"],
+    "default_dimensions": {
+      "width": 2000,
+      "height": 2000
+    }
+  },
+  
+  "google_sheets_config": {
+    "spreadsheet_name": "SEA-E Art Mockup Staging",
+    "worksheet_name": "Digital Downloads",
+    "columns": {
+      "slug": "A",
+      "drive_url": "B", 
+      "width": "C",
+      "height": "D",
+      "timestamp": "E",
+      "status": "F",
+      "etsy_listing_id": "G",
+      "title": "H",
+      "tags": "I",
+      "processing_time": "J"
+    }
+  },
+  
+  "validation_rules": {
+    "title": {
+      "min_length": 10,
+      "max_length": 140,
+      "required_keywords": ["art", "print"]
+    },
+    "tags": {
+      "count": 13,
+      "max_length_per_tag": 20,
+      "required_tags": ["art print", "digital download"]
+    },
+    "description": {
+      "min_length": 120,
+      "max_length": 1000,
+      "required_phrases": ["perfect for", "digital download"]
+    }
+  },
+  
+  "error_handling": {
+    "fail_fast": true,
+    "retry_on_errors": [
+      "rate_limit",
+      "network_timeout",
+      "temporary_api_error"
+    ],
+    "skip_on_errors": [
+      "invalid_file_format",
+      "missing_design_file",
+      "authentication_error"
+    ]
+  },
+  
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file": "pipeline.log",
+    "max_file_size": "10MB",
+    "backup_count": 5
+  }
+}

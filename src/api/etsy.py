@@ -33,17 +33,18 @@ class EtsyAPIClient:
         
         self.base_url = "https://openapi.etsy.com/v3"
         self.token_expiry = 0
-        
+        self.rate_limit_delay = 0.1  # 10 calls/sec rate limit
+
         # Validate required credentials
         required_vars = ["ETSY_API_KEY", "ETSY_REFRESH_TOKEN", "ETSY_SHOP_ID"]
         missing_vars = [var for var in required_vars if not os.getenv(var)]
-        
+
         if missing_vars:
             raise ValueError(f"Missing required environment variables: {missing_vars}")
-        
+
         # Set up logging
         self.logger = logging.getLogger("etsy_api")
-        
+
         # Initialize session with retry strategy
         self.session = self._create_session()
     
@@ -341,6 +342,216 @@ class EtsyAPIClient:
         except Exception as e:
             self.logger.error(f"Failed to update listing {listing_id}: {e}")
             return False
+
+    def create_digital_download_listing(self, title: str, description: str, price: float,
+                                      tags: List[str], mockup_files: List[str],
+                                      static_image_ids: List[str] = None) -> str:
+        """
+        Create a digital download listing with mockups and static images.
+
+        Args:
+            title: Listing title
+            description: Listing description
+            price: Price in shop currency
+            tags: List of tags (max 13)
+            mockup_files: List of mockup image file paths (up to 7)
+            static_image_ids: List of static image IDs to copy from template
+
+        Returns:
+            str: Created listing ID
+        """
+        try:
+            self.logger.info(f"Creating digital download listing: {title}")
+
+            # Prepare listing data for digital download
+            listing_data = {
+                "quantity": 999,  # High quantity for digital downloads
+                "title": title[:140],  # Etsy title limit
+                "description": description,
+                "price": 13.32,  # Fixed price for digital downloads
+                "who_made": "i_did",
+                "when_made": "2020_2025",
+                "taxonomy_id": 1063,  # Art & Collectibles category
+                "shipping_template_id": None,  # Not needed for digital downloads
+                "materials": ["digital"],
+                "tags": tags[:13],  # Etsy allows max 13 tags
+                "should_auto_renew": True,
+                "is_supply": False,
+                "type": "download",  # Digital download type
+                "state": "draft"  # Create as draft first
+            }
+
+            # Create listing
+            endpoint = f"/application/shops/{self.shop_id}/listings"
+            response = self.make_request("POST", endpoint, data=listing_data)
+
+            if response.status_code not in [200, 201]:
+                raise Exception(f"Failed to create listing: {response.status_code} - {response.text}")
+
+            listing_response = response.json()
+            listing_id = listing_response.get("listing_id")
+
+            self.logger.info(f"Digital download listing created with ID: {listing_id}")
+
+            # Upload mockup images (up to 7)
+            if mockup_files and listing_id:
+                self._upload_mockup_images(listing_id, mockup_files[:7])
+
+            # Copy static images from template (if provided)
+            if static_image_ids and listing_id:
+                self._copy_static_images(listing_id, static_image_ids)
+
+            return str(listing_id)
+
+        except Exception as e:
+            self.logger.error(f"Failed to create digital download listing: {e}")
+            raise
+
+    def _upload_mockup_images(self, listing_id: str, mockup_files: List[str]):
+        """Upload mockup images to a listing."""
+        try:
+            self.logger.info(f"Uploading {len(mockup_files)} mockup images to listing {listing_id}")
+
+            for i, image_path in enumerate(mockup_files):
+                if not Path(image_path).exists():
+                    self.logger.warning(f"Mockup file not found: {image_path}")
+                    continue
+
+                endpoint = f"/application/shops/{self.shop_id}/listings/{listing_id}/images"
+
+                with open(image_path, 'rb') as f:
+                    files = {
+                        'image': (Path(image_path).name, f, 'image/png'),
+                        'rank': (None, str(i + 1))  # Mockups get ranks 1-7
+                    }
+
+                    response = self.make_request("POST", endpoint, files=files)
+
+                    if response.status_code not in [200, 201]:
+                        self.logger.error(f"Failed to upload mockup {image_path}: {response.text}")
+                    else:
+                        self.logger.info(f"Uploaded mockup {i + 1}/{len(mockup_files)}: {Path(image_path).name}")
+
+                # Rate limiting delay
+                time.sleep(self.rate_limit_delay)
+
+        except Exception as e:
+            self.logger.error(f"Failed to upload mockup images: {e}")
+            # Don't raise - listing can exist without images
+
+    def _copy_static_images(self, listing_id: str, static_image_ids: List[str]):
+        """Copy static images from template listing to new listing."""
+        try:
+            self.logger.info(f"Copying {len(static_image_ids)} static images to listing {listing_id}")
+
+            if not static_image_ids:
+                self.logger.warning("No static image IDs provided")
+                return
+
+            # Get template listing with images
+            template_listing = self._get_template_listing_with_images()
+            if not template_listing:
+                self.logger.error("Could not fetch template listing for image copying")
+                return
+
+            # Find the static images in template listing
+            template_images = template_listing.get('images', [])
+            static_images_to_copy = []
+
+            for image in template_images:
+                image_id = str(image.get('listing_image_id', ''))
+                if image_id in static_image_ids:
+                    static_images_to_copy.append(image)
+
+            self.logger.info(f"Found {len(static_images_to_copy)} static images to copy")
+
+            # Download and re-upload each static image
+            for i, image in enumerate(static_images_to_copy):
+                try:
+                    image_url = image.get('url_fullxfull') or image.get('url_570xN')
+                    if not image_url:
+                        self.logger.warning(f"No URL found for static image {image.get('listing_image_id')}")
+                        continue
+
+                    # Download image
+                    import requests
+                    import tempfile
+                    from pathlib import Path
+
+                    response = requests.get(image_url, timeout=30)
+                    if response.status_code == 200:
+                        # Save to temporary file
+                        with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
+                            temp_file.write(response.content)
+                            temp_path = temp_file.name
+
+                        # Upload to new listing with rank after mockups (8, 9, 10)
+                        rank = i + 8  # Start after 7 mockups (ranks 8, 9, 10)
+
+                        endpoint = f"/application/shops/{self.shop_id}/listings/{listing_id}/images"
+
+                        with open(temp_path, 'rb') as f:
+                            files = {
+                                'image': (f'static_image_{i+1}.jpg', f, 'image/jpeg'),
+                                'rank': (None, str(rank))
+                            }
+
+                            upload_response = self.make_request("POST", endpoint, files=files)
+
+                            if upload_response.status_code in [200, 201]:
+                                self.logger.info(f"✅ Uploaded static image {i+1}/{len(static_images_to_copy)}")
+                            else:
+                                self.logger.error(f"❌ Failed to upload static image {i+1}: {upload_response.text}")
+
+                        # Clean up temp file
+                        Path(temp_path).unlink(missing_ok=True)
+
+                        # Rate limiting
+                        time.sleep(self.rate_limit_delay)
+
+                    else:
+                        self.logger.error(f"Failed to download static image from {image_url}")
+
+                except Exception as e:
+                    self.logger.error(f"Error processing static image {i+1}: {e}")
+                    continue
+
+            self.logger.info(f"Completed static image copying for listing {listing_id}")
+
+        except Exception as e:
+            self.logger.error(f"Failed to copy static images: {e}")
+            # Don't raise - listing can exist without static images
+
+    def _get_template_listing_with_images(self) -> Optional[Dict[str, Any]]:
+        """Get template listing with images."""
+        try:
+            # Search for template listing
+            endpoint = f"/application/shops/{self.shop_id}/listings"
+            params = {
+                'state': 'draft',
+                'limit': 100,
+                'includes': ['Images']
+            }
+
+            response = self.make_request("GET", endpoint, params=params)
+
+            if response.status_code != 200:
+                return None
+
+            listings_data = response.json()
+            listings = listings_data.get('results', [])
+
+            # Find template listing
+            for listing in listings:
+                title = listing.get('title', '').lower()
+                if 'digital download template' in title:
+                    return listing
+
+            return None
+
+        except Exception as e:
+            self.logger.error(f"Error fetching template listing: {e}")
+            return None
     
     def delete_listing(self, listing_id: str) -> bool:
         """Delete a listing."""
