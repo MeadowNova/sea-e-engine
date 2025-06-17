@@ -371,7 +371,7 @@ class EtsyAPIClient:
                 "price": 13.32,  # Fixed price for digital downloads
                 "who_made": "i_did",
                 "when_made": "2020_2025",
-                "taxonomy_id": 1063,  # Art & Collectibles category
+                "taxonomy_id": 66,  # Art & Collectibles category (confirmed working)
                 "shipping_template_id": None,  # Not needed for digital downloads
                 "materials": ["digital"],
                 "tags": tags[:13],  # Etsy allows max 13 tags
@@ -406,6 +406,53 @@ class EtsyAPIClient:
         except Exception as e:
             self.logger.error(f"Failed to create digital download listing: {e}")
             raise
+
+    def upload_digital_file(self, listing_id: str, file_path: str, file_name: str = None) -> bool:
+        """
+        Upload a digital file to an Etsy listing.
+
+        Args:
+            listing_id: Etsy listing ID
+            file_path: Path to the digital file to upload
+            file_name: Custom filename (optional)
+
+        Returns:
+            bool: True if upload successful
+        """
+        try:
+            file_path = Path(file_path)
+
+            if not file_path.exists():
+                self.logger.error(f"Digital file not found: {file_path}")
+                return False
+
+            # Use custom filename or original filename
+            upload_filename = file_name or file_path.name
+
+            self.logger.info(f"Uploading digital file to listing {listing_id}: {upload_filename}")
+
+            # Etsy digital file upload endpoint
+            endpoint = f"/application/shops/{self.shop_id}/listings/{listing_id}/files"
+
+            with open(file_path, 'rb') as f:
+                files = {
+                    'file': (upload_filename, f, 'application/pdf'),
+                    'name': (None, upload_filename),
+                    'rank': (None, '1')  # Primary digital file
+                }
+
+                response = self.make_request("POST", endpoint, files=files)
+
+                if response.status_code in [200, 201]:
+                    self.logger.info(f"✅ Digital file uploaded successfully: {upload_filename}")
+                    return True
+                else:
+                    self.logger.error(f"❌ Failed to upload digital file: {response.status_code} - {response.text}")
+                    return False
+
+        except Exception as e:
+            self.logger.error(f"Error uploading digital file: {e}")
+            return False
 
     def _upload_mockup_images(self, listing_id: str, mockup_files: List[str]):
         """Upload mockup images to a listing."""

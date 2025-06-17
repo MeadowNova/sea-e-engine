@@ -34,12 +34,18 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class DesignFile:
-    """Represents a design file with parsed metadata."""
+    """Represents a design file with parsed metadata.
+
+    Phase 3 Enhancement: Supports dual PNG+SVG files for premium digital products
+    - filepath: PNG file for mockup generation
+    - svg_filepath: SVG file for customer delivery (optional)
+    """
     filepath: Path
     design_slug: str
     width: int
     height: int
     filename: str
+    svg_filepath: Optional[Path] = None  # Phase 3: SVG file for premium digital products
 
 @dataclass
 class PipelineResult:
@@ -102,59 +108,93 @@ class DigitalDownloadPipeline:
     
     def discover_design_files(self) -> List[DesignFile]:
         """Discover and parse design files from mockups directory.
-        
+
+        Phase 3 Enhancement: Detects PNG+SVG pairs for premium digital products
+        - PNG files: Used for mockup generation
+        - SVG files: Used for customer delivery (5 sizes + Google Drive + PDF)
+
         Expected pattern: <design-slug>__w=<width_px>__h=<height_px>.png
-        
+
         Returns:
-            List of DesignFile objects
+            List of DesignFile objects with enhanced dual-file support
         """
         logger.info(f"Discovering design files in: {self.mockups_dir}")
-        
+
         design_files = []
+        design_pairs = {}  # Track PNG+SVG pairs
 
         # Pattern for files with explicit dimensions: design_name__w=2000__h=2000.png
         dimension_pattern = re.compile(r'^(.+?)__w=(\d+)__h=(\d+)\.(png|jpg|jpeg)$', re.IGNORECASE)
 
+        # First pass: Collect all files and group by design name
         for filepath in self.mockups_dir.glob("*"):
-            if filepath.is_file() and filepath.suffix.lower() in ['.png', '.jpg', '.jpeg']:
+            if filepath.is_file():
+                file_ext = filepath.suffix.lower()
+                design_name = filepath.stem
 
-                # Try dimension pattern first
-                match = dimension_pattern.match(filepath.name)
-                if match:
-                    design_slug = match.group(1)
-                    width = int(match.group(2))
-                    height = int(match.group(3))
+                # Initialize design pair if not exists
+                if design_name not in design_pairs:
+                    design_pairs[design_name] = {'png': None, 'svg': None}
 
-                    design_file = DesignFile(
-                        filepath=filepath,
-                        design_slug=design_slug,
-                        width=width,
-                        height=height,
-                        filename=filepath.name
-                    )
-                    design_files.append(design_file)
-                    logger.debug(f"Found design file with dimensions: {design_file.filename}")
+                # Categorize files by type
+                if file_ext in ['.png', '.jpg', '.jpeg']:
+                    design_pairs[design_name]['png'] = filepath
+                elif file_ext == '.svg':
+                    design_pairs[design_name]['svg'] = filepath
 
-                else:
-                    # Handle descriptive filenames (your current naming system)
-                    design_slug = filepath.stem
+        # Second pass: Create DesignFile objects with dual-file support
+        for design_name, files in design_pairs.items():
+            png_file = files['png']
+            svg_file = files['svg']
 
-                    # Clean up the slug for better SEO processing
-                    # Keep the descriptive nature but make it SEO-friendly
-                    clean_slug = design_slug.replace(' ', '_').replace('-', '_')
+            # Skip if no PNG file (required for mockups)
+            if not png_file:
+                if svg_file:
+                    logger.warning(f"Found SVG without PNG for '{design_name}' - skipping (PNG required for mockups)")
+                continue
 
-                    design_file = DesignFile(
-                        filepath=filepath,
-                        design_slug=clean_slug,
-                        width=2000,  # Default high-res dimensions for digital downloads
-                        height=2000,
-                        filename=filepath.name
-                    )
-                    design_files.append(design_file)
-                    logger.debug(f"Found descriptive design file: {design_file.filename}")
-                    logger.debug(f"  → Processed slug: {clean_slug}")
-        
-        logger.info(f"Discovered {len(design_files)} design files")
+            # Try dimension pattern first
+            match = dimension_pattern.match(png_file.name)
+            if match:
+                design_slug = match.group(1)
+                width = int(match.group(2))
+                height = int(match.group(3))
+            else:
+                # Handle descriptive filenames (your current naming system)
+                design_slug = design_name
+                # Clean up the slug for better SEO processing
+                design_slug = design_slug.replace(' ', '_').replace('-', '_')
+                width = 2000  # Default high-res dimensions for digital downloads
+                height = 2000
+
+            # Create enhanced DesignFile with dual-file support
+            design_file = DesignFile(
+                filepath=png_file,  # Primary file for mockups
+                design_slug=design_slug,
+                width=width,
+                height=height,
+                filename=png_file.name
+            )
+
+            # Add SVG file path for premium digital products (Phase 3)
+            if svg_file:
+                design_file.svg_filepath = svg_file
+                logger.debug(f"Found PNG+SVG pair: {design_file.filename} + {svg_file.name}")
+            else:
+                design_file.svg_filepath = None
+                logger.debug(f"Found PNG only: {design_file.filename} (will use standard workflow)")
+
+            design_files.append(design_file)
+            logger.debug(f"  → Processed slug: {design_slug}")
+
+        # Summary logging
+        png_only_count = sum(1 for df in design_files if df.svg_filepath is None)
+        png_svg_count = sum(1 for df in design_files if df.svg_filepath is not None)
+
+        logger.info(f"Discovered {len(design_files)} design files:")
+        logger.info(f"  • {png_svg_count} PNG+SVG pairs (premium digital products)")
+        logger.info(f"  • {png_only_count} PNG only (standard workflow)")
+
         return design_files
 
     def _initialize_static_images(self):
