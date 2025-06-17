@@ -28,6 +28,7 @@ from modules.pdf_customizer import PDFCustomizer
 from api.etsy import EtsyAPIClient
 from modules.openai_seo_optimizer import OpenAISEOOptimizer
 from modules.custom_mockup_generator import CustomMockupGenerator
+from modules.cache_manager import CacheManager
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +77,11 @@ class Phase3PremiumPipeline:
         logger.info(f"   Production files directory: {self.production_files_dir}")
         logger.info(f"   PDF template: {self.pdf_template_path}")
         logger.info(f"   Static images: {len(self.static_image_ids)} found")
+        logger.info(f"   Cache management: Enabled (retain {self.cache_manager.retention_count} designs)")
         logger.info(f"   Mode: {self.mode}")
+
+        # Log initial cache status
+        self.cache_manager.log_cache_status()
     
     def _initialize_components(self):
         """Initialize all pipeline components."""
@@ -86,6 +91,18 @@ class Phase3PremiumPipeline:
             self.pdf_customizer = PDFCustomizer(
                 template_path=self.pdf_template_path,
                 output_dir="output/phase3_custom_pdfs"
+            )
+
+            # Initialize cache manager for cleanup
+            self.cache_manager = CacheManager(
+                cache_dirs=[
+                    "output/phase3_mockups",
+                    "output/phase3_custom_pdfs",
+                    "output/phase3_jpeg_files"
+                ],
+                retention_count=5,  # Keep last 5 designs for debugging
+                max_cache_size_mb=2000,  # Warn if cache exceeds 2GB
+                cleanup_on_success=True  # Auto-cleanup after success
             )
             
             # Existing components
@@ -281,6 +298,9 @@ class Phase3PremiumPipeline:
             logger.info(f"   Folder: {design['folder_number']}")
             logger.info(f"   Mockup file: {design['mockup_file'].name}")
 
+            # Register design for cache management
+            self.cache_manager.register_design_processing(design['design_name'])
+
             # Step 1: Use pre-sized ratio-based JPEG files (no creation needed)
             logger.info("📐 Step 1: Using pre-sized ratio-based JPEG files...")
             production_files = design['production_files']
@@ -369,7 +389,10 @@ class Phase3PremiumPipeline:
             # Success!
             result.success = True
             result.processing_time = time.time() - start_time
-            
+
+            # Mark design as successful and trigger cache cleanup
+            self.cache_manager.mark_design_success(design['design_name'])
+
             logger.info(f"🎉 Premium design processing complete!")
             logger.info(f"   Design: {design['design_name']}")
             logger.info(f"   Folder: {design['folder_number']}")
@@ -385,6 +408,10 @@ class Phase3PremiumPipeline:
         except Exception as e:
             result.error = str(e)
             result.processing_time = time.time() - start_time
+
+            # Mark design as failed and clean up immediately
+            self.cache_manager.mark_design_failed(design['design_name'])
+
             logger.error(f"❌ Premium design processing failed: {e}")
             return result
 
@@ -510,6 +537,10 @@ class Phase3PremiumPipeline:
                 logger.info(f"   ☁️  Google Drive folders created: {successful}")
                 logger.info(f"   📋 Custom PDFs generated: {successful}")
                 logger.info(f"   🛒 Etsy listings created: {successful}")
+
+            # Log final cache status after batch processing
+            logger.info(f"")
+            self.cache_manager.log_cache_status()
             
             return {
                 'success': successful > 0,
