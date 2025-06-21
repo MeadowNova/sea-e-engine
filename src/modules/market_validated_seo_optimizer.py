@@ -294,12 +294,163 @@ class MarketValidatedSEOOptimizer:
             # Generate SEO using parsed components
             return self._generate_from_components(parsed_components)
         else:
-            # Fallback to original OpenAI optimizer
-            logger.info(f"📝 Using OpenAI fallback for: {design_identifier}")
-            fallback_content = self.fallback_optimizer.generate_seo_content(design_identifier)
-            fallback_content['source'] = 'openai_fallback'
-            fallback_content['price'] = 20  # Default price for non-concept designs
-            return fallback_content
+            # Try art movement detection fallback
+            art_movement = self._detect_art_movement(design_identifier)
+
+            if art_movement:
+                logger.info(f"🎨 Detected art movement: {art_movement}")
+                return self._generate_from_art_movement(design_identifier, art_movement)
+            else:
+                # Final fallback to original OpenAI optimizer
+                logger.info(f"📝 Using OpenAI fallback for: {design_identifier}")
+                fallback_content = self.fallback_optimizer.generate_seo_content(design_identifier)
+                fallback_content['source'] = 'openai_fallback'
+                fallback_content['price'] = 20  # Default price for non-concept designs
+                return fallback_content
+
+    def _detect_art_movement(self, filename: str) -> Optional[str]:
+        """Detect art movement from filename.
+
+        Args:
+            filename: Design filename
+
+        Returns:
+            Detected art movement or None
+        """
+        # Remove extension and convert to lowercase
+        clean_name = Path(filename).stem.lower()
+
+        # Art movement detection patterns
+        movement_patterns = {
+            'japanese': ['japanese', 'japan', 'ukiyo', 'zen', 'hokusai', 'sumi', 'ink'],
+            'surreal': ['surreal', 'dali', 'dream', 'impossible', 'abstract', 'weird'],
+            'surrealism': ['surreal', 'dali', 'dream', 'impossible', 'abstract', 'weird'],
+            'pop': ['pop', 'warhol', 'modern', 'bold', 'graphic', 'contemporary'],
+            'pop_art': ['pop', 'warhol', 'modern', 'bold', 'graphic', 'contemporary'],
+            'renaissance': ['renaissance', 'classical', 'davinci', 'masterpiece', 'traditional'],
+            'impressionist': ['impressionist', 'monet', 'painted', 'dreamy', 'soft'],
+            'impressionism': ['impressionist', 'monet', 'painted', 'dreamy', 'soft'],
+            'cubism': ['cubism', 'picasso', 'geometric', 'angular', 'fragmented'],
+            'art_nouveau': ['nouveau', 'floral', 'organic', 'decorative', 'ornate'],
+            'minimalist': ['minimal', 'simple', 'clean', 'geometric', 'basic'],
+            'vintage': ['vintage', 'retro', 'classic', 'old', 'antique'],
+            'gothic': ['gothic', 'dark', 'medieval', 'ornate', 'dramatic']
+        }
+
+        # Check for movement patterns in filename
+        for movement, patterns in movement_patterns.items():
+            for pattern in patterns:
+                if pattern in clean_name:
+                    logger.debug(f"Detected '{movement}' from pattern '{pattern}' in {filename}")
+                    return movement
+
+        return None
+
+    def _generate_from_art_movement(self, filename: str, art_movement: str) -> Dict[str, Any]:
+        """Generate SEO content based on detected art movement.
+
+        Args:
+            filename: Design filename
+            art_movement: Detected art movement
+
+        Returns:
+            Generated SEO content
+        """
+        # Get keywords for this art movement
+        movement_keywords = self.keyword_mappings["art_movement_keywords"].get(art_movement, [])
+
+        # Extract design elements from filename
+        clean_name = Path(filename).stem.lower()
+        design_elements = self._extract_design_elements(clean_name)
+
+        # Generate title based on art movement and design elements
+        title_parts = []
+
+        # Add primary art movement keyword
+        if movement_keywords:
+            title_parts.append(movement_keywords[0].title())
+
+        # Add design elements
+        if design_elements['subject']:
+            title_parts.append(design_elements['subject'].title())
+
+        # Add core elements
+        title_parts.extend(["Cat Art Print", "Digital Download"])
+
+        # Create title
+        title = " | ".join(title_parts)
+        title = self._optimize_title(title)
+
+        # Generate tags
+        tags = []
+
+        # Add art movement keywords
+        tags.extend(movement_keywords[:4])
+
+        # Add design element tags
+        if design_elements['colors']:
+            tags.extend(design_elements['colors'][:2])
+        if design_elements['style']:
+            tags.extend(design_elements['style'][:2])
+
+        # Add essential cat art tags
+        essential_tags = ["cat art", "digital download", "wall art", "art print", "home decor"]
+        for tag in essential_tags:
+            if tag not in tags and len(tags) < 13:
+                tags.append(tag)
+
+        # Fill remaining slots with movement-specific tags
+        while len(tags) < 13:
+            filler_tags = ["printable art", "instant download", "digital file", "wall decor", "cat lover gift"]
+            for tag in filler_tags:
+                if tag not in tags and len(tags) < 13:
+                    tags.append(tag)
+
+        tags = tags[:13]  # Ensure exactly 13 tags
+
+        # Generate description
+        movement_name = art_movement.replace('_', ' ').title()
+        subject = design_elements['subject'] or 'cat'
+
+        description = f"Stunning {movement_name} inspired {subject} art that brings sophisticated style to any space. "
+        description += f"This {art_movement.replace('_', ' ')} design captures the essence of the movement while "
+        description += "celebrating our feline friends in a unique and artistic way."
+
+        # Add template
+        template_content = self._load_description_template()
+        full_description = f"{description}\n\n{template_content}"
+
+        return {
+            'title': title,
+            'tags': tags,
+            'description': full_description,
+            'price': 20,  # Default price for art movement detection
+            'art_movement': art_movement,
+            'design_elements': design_elements,
+            'source': 'art_movement_detection'
+        }
+
+    def _extract_design_elements(self, clean_name: str) -> Dict[str, List[str]]:
+        """Extract design elements from filename.
+
+        Args:
+            clean_name: Cleaned filename (lowercase, no extension)
+
+        Returns:
+            Dictionary with extracted design elements
+        """
+        # Common design element patterns
+        color_patterns = ['black', 'white', 'red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'gold', 'silver']
+        style_patterns = ['vintage', 'modern', 'minimalist', 'ornate', 'simple', 'complex', 'detailed', 'abstract']
+        subject_patterns = ['cat', 'kitten', 'feline', 'kitty', 'tabby', 'persian', 'siamese']
+
+        elements = {
+            'colors': [color for color in color_patterns if color in clean_name],
+            'style': [style for style in style_patterns if style in clean_name],
+            'subject': next((subject for subject in subject_patterns if subject in clean_name), 'cat')
+        }
+
+        return elements
 
     def _parse_ai_naming(self, filename: str) -> Optional[Dict[str, str]]:
         """Parse AI-optimized naming format.
