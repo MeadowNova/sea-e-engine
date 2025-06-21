@@ -143,8 +143,8 @@ class MarketValidatedSEOOptimizer:
             concept_data['primary_theme']
         )
         
-        # Ensure title meets requirements (120-140 chars, includes Digital Download)
-        enhanced_title = self._optimize_title(base_title)
+        # Generate compelling, market-driven title
+        enhanced_title = self._create_compelling_title(concept_data)
         
         # Generate enhanced description
         enhanced_description = self._generate_enhanced_description(concept_data)
@@ -250,30 +250,127 @@ class MarketValidatedSEOOptimizer:
                 title += " | Cat Art Print Decor"
 
         return title[:140]
-    
-    def _generate_enhanced_description(self, concept_data: Dict[str, Any]) -> str:
-        """Generate enhanced description for concept.
-        
+
+    def _create_compelling_title(self, concept_data: Dict[str, Any]) -> str:
+        """Create a compelling, market-driven title that actually sells.
+
         Args:
-            concept_data: Concept data
-            
+            concept_data: Concept data with all the details
+
         Returns:
-            Enhanced description
+            Compelling title optimized for conversions
         """
-        # Create engaging description based on concept data
+        # Extract key elements
         name = concept_data['concept_name']
         theme = concept_data['primary_theme']
         movement = concept_data['art_movement']
-        
-        description = f"Transform your space with this stunning {name.lower()} design. "
-        description += f"This {movement} inspired artwork captures the essence of {theme} "
-        description += "in a way that speaks to cat lovers and art enthusiasts alike. "
-        description += "Perfect for adding personality and sophistication to any room."
-        
+        cat_archetype = concept_data.get('cat_archetype', 'zen_master')
+
+        # Create compelling title components
+        # 1. Emotional hook + Art style
+        emotional_hooks = {
+            'autumn': "Cozy Fall Vibes",
+            'winter': "Winter Magic",
+            'spring': "Fresh Spring Energy",
+            'summer': "Bright Summer Joy",
+            'halloween': "Spooky Season Charm",
+            'christmas': "Holiday Festive Spirit",
+            'thanksgiving': "Grateful Autumn Warmth"
+        }
+
+        # 2. Art movement descriptors that sound appealing
+        movement_descriptors = {
+            'surrealism': "Dreamy Surreal",
+            'impressionism': "Soft Impressionist",
+            'pop_art': "Bold Pop Art",
+            'renaissance': "Classic Renaissance",
+            'japanese': "Zen Japanese",
+            'vintage': "Charming Vintage",
+            'gothic': "Dramatic Gothic",
+            'minimalist': "Clean Modern"
+        }
+
+        # 3. Cat personality that appeals to buyers
+        cat_personalities = {
+            'zen_master': "Peaceful Cat",
+            'mischief_maker': "Playful Cat",
+            'cozy_companion': "Cuddly Cat",
+            'adventure_seeker': "Bold Cat",
+            'sophisticated_observer': "Elegant Cat"
+        }
+
+        # Build compelling title
+        hook = emotional_hooks.get(theme, "Stunning")
+        art_style = movement_descriptors.get(movement, movement.title())
+        cat_type = cat_personalities.get(cat_archetype, "Adorable Cat")
+
+        # Create title that focuses on benefits and emotions
+        title_templates = [
+            f"{hook} {art_style} {cat_type} Wall Art | Digital Download Print | Cat Lover Home Decor Gift",
+            f"{art_style} {cat_type} Art Print | {hook} Digital Download | Instant Cat Wall Decor",
+            f"{cat_type} {art_style} Digital Art | {hook} Printable Wall Decor | Cat Art Download"
+        ]
+
+        # Choose the template that fits best within character limits
+        for template in title_templates:
+            if 120 <= len(template) <= 140:
+                return template
+
+        # Fallback: use first template and optimize length
+        title = title_templates[0]
+        return self._optimize_title(title)
+
+    def _generate_enhanced_description(self, concept_data: Dict[str, Any]) -> str:
+        """Generate enhanced description for concept.
+
+        Args:
+            concept_data: Concept data
+
+        Returns:
+            Enhanced description
+        """
+        # Create compelling, market-driven description
+        name = concept_data['concept_name']
+        theme = concept_data['primary_theme']
+        movement = concept_data['art_movement']
+        humor_style = concept_data.get('humor_style', 'relatable_behavior')
+        cat_archetype = concept_data.get('cat_archetype', 'zen_master')
+
+        # Create engaging hook based on concept data
+        hooks = {
+            'autumn': "🍂 Fall vibes meet feline charm in this absolutely irresistible design!",
+            'winter': "❄️ Cozy winter magic captured with the perfect touch of cat personality!",
+            'spring': "🌸 Fresh spring energy meets adorable cat charm in this delightful piece!",
+            'summer': "☀️ Bright summer vibes with a playful cat twist that'll make you smile!",
+            'halloween': "🎃 Spooky season gets a purr-fect upgrade with this hauntingly cute design!",
+            'christmas': "🎄 Holiday magic meets cat cuteness in this festive masterpiece!",
+            'thanksgiving': "🦃 Grateful vibes and cat charm combine for the perfect seasonal decor!"
+        }
+
+        # Get theme-specific hook or create dynamic one
+        hook = hooks.get(theme, f"✨ {movement.title()} artistry meets irresistible cat charm!")
+
+        # Create personality-driven description
+        personality_traits = {
+            'zen_master': "wise and contemplative energy",
+            'mischief_maker': "playful and cheeky personality",
+            'cozy_companion': "warm and comforting presence",
+            'adventure_seeker': "bold and adventurous spirit",
+            'sophisticated_observer': "elegant and refined demeanor"
+        }
+
+        trait = personality_traits.get(cat_archetype, "captivating feline charm")
+
+        description = f"{hook}\n\n"
+        description += f"This isn't just another cat print – it's a conversation starter that brings {trait} "
+        description += f"to any space. Whether you're a devoted cat parent, art lover, or someone who appreciates "
+        description += f"unique decor that actually has personality, this {movement}-inspired piece delivers.\n\n"
+        description += f"Perfect for cat lovers who want their walls to reflect their passion with style and sophistication!"
+
         # Load and append template
         template_content = self._load_description_template()
         full_description = f"{description}\n\n{template_content}"
-        
+
         return full_description
 
     def _generate_from_naming_system(self, design_identifier: str) -> Dict[str, Any]:
@@ -363,23 +460,8 @@ class MarketValidatedSEOOptimizer:
         clean_name = Path(filename).stem.lower()
         design_elements = self._extract_design_elements(clean_name)
 
-        # Generate title based on art movement and design elements
-        title_parts = []
-
-        # Add primary art movement keyword
-        if movement_keywords:
-            title_parts.append(movement_keywords[0].title())
-
-        # Add design elements
-        if design_elements['subject']:
-            title_parts.append(design_elements['subject'].title())
-
-        # Add core elements
-        title_parts.extend(["Cat Art Print", "Digital Download"])
-
-        # Create title
-        title = " | ".join(title_parts)
-        title = self._optimize_title(title)
+        # Generate compelling title based on art movement and design elements
+        title = self._create_art_movement_title(art_movement, design_elements, movement_keywords)
 
         # Generate tags
         tags = []
@@ -400,21 +482,30 @@ class MarketValidatedSEOOptimizer:
                 tags.append(tag)
 
         # Fill remaining slots with movement-specific tags
+        filler_tags = ["printable art", "instant download", "digital file", "wall decor", "cat lover gift",
+                      "modern art", "contemporary", "unique design", "artistic", "creative", "decorative", "stylish"]
+        for tag in filler_tags:
+            if tag not in tags and len(tags) < 13:
+                tags.append(tag)
+            if len(tags) >= 13:
+                break
+
+        # Ensure we have exactly 13 tags - add generic tags if needed
         while len(tags) < 13:
-            filler_tags = ["printable art", "instant download", "digital file", "wall decor", "cat lover gift"]
-            for tag in filler_tags:
-                if tag not in tags and len(tags) < 13:
+            generic_tags = ["artwork", "design", "print", "poster", "decor", "gift", "beautiful", "elegant"]
+            added_any = False
+            for tag in generic_tags:
+                if tag not in tags:
                     tags.append(tag)
+                    added_any = True
+                    break
+            if not added_any:  # Safety break if no more unique tags can be added
+                break
 
         tags = tags[:13]  # Ensure exactly 13 tags
 
-        # Generate description
-        movement_name = art_movement.replace('_', ' ').title()
-        subject = design_elements['subject'] or 'cat'
-
-        description = f"Stunning {movement_name} inspired {subject} art that brings sophisticated style to any space. "
-        description += f"This {art_movement.replace('_', ' ')} design captures the essence of the movement while "
-        description += "celebrating our feline friends in a unique and artistic way."
+        # Generate compelling description
+        description = self._create_art_movement_description(art_movement, design_elements)
 
         # Add template
         template_content = self._load_description_template()
@@ -451,6 +542,104 @@ class MarketValidatedSEOOptimizer:
         }
 
         return elements
+
+    def _create_art_movement_title(self, art_movement: str, design_elements: Dict, movement_keywords: List[str]) -> str:
+        """Create compelling title for art movement detection.
+
+        Args:
+            art_movement: Detected art movement
+            design_elements: Extracted design elements
+            movement_keywords: Keywords for the movement
+
+        Returns:
+            Compelling title optimized for sales
+        """
+        # Art movement to compelling descriptor mapping
+        movement_descriptors = {
+            'japanese': "Zen Japanese Style",
+            'surreal': "Dreamy Surreal",
+            'surrealism': "Dreamy Surreal",
+            'pop': "Bold Pop Art",
+            'pop_art': "Bold Pop Art",
+            'renaissance': "Classic Renaissance",
+            'impressionist': "Soft Impressionist",
+            'impressionism': "Soft Impressionist",
+            'cubism': "Geometric Cubist",
+            'art_nouveau': "Elegant Art Nouveau",
+            'minimalist': "Clean Minimalist",
+            'vintage': "Charming Vintage",
+            'gothic': "Dramatic Gothic"
+        }
+
+        # Get compelling descriptor
+        style_desc = movement_descriptors.get(art_movement, art_movement.title())
+
+        # Get subject with personality
+        subject = design_elements.get('subject', 'cat')
+        if subject == 'cat':
+            subject = "Cat"
+        else:
+            subject = subject.title()
+
+        # Get color if available
+        colors = design_elements.get('colors', [])
+        color_desc = colors[0].title() if colors else ""
+
+        # Create compelling title templates
+        if color_desc:
+            title_templates = [
+                f"{style_desc} {color_desc} {subject} Wall Art | Digital Download Print | Cat Lover Home Decor",
+                f"{color_desc} {style_desc} {subject} Art Print | Digital Download | Instant Cat Wall Decor",
+                f"Stunning {style_desc} {color_desc} {subject} Digital Art | Printable Wall Decor Download"
+            ]
+        else:
+            title_templates = [
+                f"{style_desc} {subject} Wall Art | Digital Download Print | Cat Lover Home Decor Gift",
+                f"Beautiful {style_desc} {subject} Art Print | Digital Download | Instant Cat Wall Decor",
+                f"Stunning {style_desc} {subject} Digital Art | Printable Wall Decor Download"
+            ]
+
+        # Choose the template that fits best within character limits
+        for template in title_templates:
+            if 120 <= len(template) <= 140:
+                return template
+
+        # Fallback: use first template and optimize length
+        title = title_templates[0]
+        return self._optimize_title(title)
+
+    def _create_art_movement_description(self, art_movement: str, design_elements: Dict) -> str:
+        """Create compelling description for art movement detection.
+
+        Args:
+            art_movement: Detected art movement
+            design_elements: Extracted design elements
+
+        Returns:
+            Compelling description that sells
+        """
+        # Movement-specific compelling descriptions
+        movement_descriptions = {
+            'japanese': "🎋 Bring zen tranquility to your space with this beautiful Japanese-inspired cat art! The serene aesthetic and peaceful vibes make it perfect for creating a calming atmosphere.",
+            'surreal': "✨ Step into a world of imagination with this dreamy surreal cat art! This whimsical piece sparks conversation and adds a touch of mystery to any room.",
+            'surrealism': "✨ Step into a world of imagination with this dreamy surreal cat art! This whimsical piece sparks conversation and adds a touch of mystery to any room.",
+            'pop': "🎨 Bold, bright, and absolutely irresistible! This pop art cat design brings instant energy and personality to your walls with its vibrant colors and modern style.",
+            'pop_art': "🎨 Bold, bright, and absolutely irresistible! This pop art cat design brings instant energy and personality to your walls with its vibrant colors and modern style.",
+            'renaissance': "🏛️ Timeless elegance meets feline charm in this classical Renaissance-inspired piece. Perfect for cat lovers who appreciate sophisticated, museum-quality art.",
+            'impressionist': "🌸 Soft, dreamy, and utterly charming! This impressionist cat art captures the gentle beauty of the movement while celebrating our beloved feline friends.",
+            'impressionism': "🌸 Soft, dreamy, and utterly charming! This impressionist cat art captures the gentle beauty of the movement while celebrating our beloved feline friends.",
+            'vintage': "📻 Nostalgic charm meets cat cuteness in this delightful vintage-inspired design! Perfect for adding retro personality to any space.",
+            'gothic': "🖤 Dramatic and mysterious, this gothic cat art brings sophisticated dark elegance to your decor. Perfect for those who love unique, statement pieces."
+        }
+
+        # Get movement-specific description or create generic one
+        base_desc = movement_descriptions.get(art_movement,
+            f"🎨 Stunning {art_movement.replace('_', ' ').title()} inspired cat art that brings sophisticated artistic style to any space!")
+
+        # Add universal appeal
+        universal_appeal = "\n\nWhether you're a devoted cat parent, art enthusiast, or someone who loves unique decor with personality, this piece delivers both style and charm. Perfect for living rooms, bedrooms, offices, or anywhere you want to showcase your love for cats with artistic flair!"
+
+        return base_desc + universal_appeal
 
     def _parse_ai_naming(self, filename: str) -> Optional[Dict[str, str]]:
         """Parse AI-optimized naming format.

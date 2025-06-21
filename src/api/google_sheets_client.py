@@ -7,6 +7,7 @@ Production-ready Google Sheets API client for uploading mockup images
 and generating shareable URLs for Etsy listing integration.
 
 Features:
+- OAuth 2.0 authentication (user can access created files)
 - Upload images to Google Drive and embed in Sheets
 - Generate public shareable URLs
 - Organize by product collections and types
@@ -14,23 +15,20 @@ Features:
 - Error handling and retry logic
 """
 
-import os
-import json
 import logging
 import time
 import io
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, Optional, Tuple
 from dataclasses import dataclass
 
 try:
     import gspread
-    from google.oauth2.service_account import Credentials
-    from google.auth.exceptions import GoogleAuthError
-    from googleapiclient.discovery import build
     from googleapiclient.errors import HttpError
     from googleapiclient.http import MediaIoBaseUpload
     from PIL import Image
+    # Import OAuth authentication
+    from src.auth.google_oauth import GoogleOAuthManager
 except ImportError as e:
     raise ImportError(f"Missing required Google libraries: {e}. Please install: pip install gspread google-auth google-auth-oauthlib google-api-python-client")
 
@@ -53,64 +51,58 @@ class GoogleSheetsAPIError(Exception):
 
 class GoogleSheetsClient:
     """
-    Production-ready Google Sheets API client for mockup image uploads.
+    Production-ready Google Sheets API client for mockup image uploads with OAuth authentication.
     """
-    
-    def __init__(self, credentials_path: str = None, project_id: str = None):
+
+    def __init__(self, oauth_client_secrets: str = "credentials/google_oauth_client.json"):
         """
-        Initialize Google Sheets client with service account credentials.
-        
+        Initialize Google Sheets client with OAuth authentication.
+
         Args:
-            credentials_path: Path to service account JSON file
-            project_id: Google Cloud project ID
+            oauth_client_secrets: Path to OAuth client secrets JSON file
         """
-        self.credentials_path = credentials_path or "credentials/google-sa.json"
-        self.project_id = project_id or os.getenv('GOOGLE_PROJECT_ID')
-        
-        # Required scopes for Sheets and Drive operations
-        self.scopes = [
-            'https://www.googleapis.com/auth/spreadsheets',
-            'https://www.googleapis.com/auth/drive',
-            'https://www.googleapis.com/auth/drive.file'
-        ]
-        
+        self.oauth_client_secrets = oauth_client_secrets
+
         # Set up logging
         self.logger = logging.getLogger("google_sheets_client")
-        
+
         # Initialize clients
         self.gc = None
         self.sheets_service = None
         self.drive_service = None
-        
+        self.oauth_manager = None
+
         # Rate limiting
         self.last_request_time = 0
         self.min_request_interval = 0.1  # 10 requests per second max
-        
+
         # Initialize the client
         self._initialize_client()
     
     def _initialize_client(self):
-        """Initialize Google Sheets and Drive clients with service account."""
+        """Initialize Google Sheets and Drive clients with OAuth authentication."""
         try:
-            self.logger.info("Initializing Google Sheets client...")
-            
-            # Check if credentials file exists
-            if not Path(self.credentials_path).exists():
-                raise FileNotFoundError(f"Credentials file not found: {self.credentials_path}")
-            
-            # Load credentials
-            credentials = Credentials.from_service_account_file(
-                self.credentials_path,
-                scopes=self.scopes
-            )
-            
-            # Initialize clients
-            self.gc = gspread.authorize(credentials)
-            self.sheets_service = build('sheets', 'v4', credentials=credentials)
-            self.drive_service = build('drive', 'v3', credentials=credentials)
-            
-            self.logger.info("Google Sheets client initialized successfully")
-            
+            self.logger.info("Initializing Google Sheets client with OAuth...")
+
+            # Initialize OAuth manager
+            self.oauth_manager = GoogleOAuthManager(self.oauth_client_secrets)
+
+            # Authenticate with OAuth
+            if not self.oauth_manager.authenticate():
+                raise Exception("OAuth authentication failed")
+
+            # Get authenticated services
+            self.gc = self.oauth_manager.get_gspread_client()
+            self.sheets_service = self.oauth_manager.get_sheets_service()
+            self.drive_service = self.oauth_manager.get_drive_service()
+
+            # Test the connection
+            success, message = self.oauth_manager.test_authentication()
+            if success:
+                self.logger.info(f"Google Sheets OAuth authentication successful: {message}")
+            else:
+                raise Exception(f"Authentication test failed: {message}")
+
         except Exception as e:
             self.logger.error(f"Failed to initialize Google Sheets client: {e}")
             raise GoogleSheetsAPIError(f"Client initialization failed: {e}")

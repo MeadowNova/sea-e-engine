@@ -52,24 +52,63 @@ class DesignConceptMapper:
     
     def get_concept_by_filename(self, filename: str) -> Optional[Dict[str, Any]]:
         """Get design concept by filename.
-        
+
         Args:
-            filename: Design filename (e.g., "september_032.jpg")
-            
+            filename: Design filename (e.g., "september_032.jpg" or "september_032_3_4 Ratio.png")
+
         Returns:
             Design concept dictionary or None if not found
         """
         # Extract concept ID from filename (remove extension)
-        concept_id = Path(filename).stem
-        
-        concept = self.id_to_concept.get(concept_id)
-        
+        filename_stem = Path(filename).stem
+
+        # Try exact match first
+        concept = self.id_to_concept.get(filename_stem)
+
         if concept:
-            logger.debug(f"✅ Found concept for {filename}: {concept['name']}")
-        else:
-            logger.debug(f"⚠️ No concept found for filename: {filename}")
-        
+            logger.debug(f"✅ Found exact concept match for {filename}: {concept['name']}")
+            return concept
+
+        # Try to extract concept ID from ratio-based filename
+        # Format: september_032_3_4 Ratio or september_032_2_3 Ratio
+        concept_id = self._extract_concept_id_from_ratio_filename(filename_stem)
+
+        if concept_id:
+            concept = self.id_to_concept.get(concept_id)
+            if concept:
+                logger.debug(f"✅ Found concept via ratio extraction for {filename}: {concept['name']}")
+                return concept
+
+        logger.debug(f"⚠️ No concept found for filename: {filename}")
         return concept
+
+    def _extract_concept_id_from_ratio_filename(self, filename_stem: str) -> Optional[str]:
+        """Extract concept ID from ratio-based filename.
+
+        Args:
+            filename_stem: Filename without extension (e.g., "september_032_3_4 Ratio")
+
+        Returns:
+            Concept ID or None if not a ratio-based filename
+        """
+        # Pattern: concept_id_ratio_format
+        # Examples: september_032_3_4 Ratio, october_063_2_3 Ratio
+
+        # Check if it contains ratio pattern
+        if '_ratio' in filename_stem.lower() or ' ratio' in filename_stem.lower():
+            # Split by underscore and look for the pattern
+            parts = filename_stem.split('_')
+
+            if len(parts) >= 3:
+                # Try to reconstruct concept_id from first parts
+                # Look for month_number pattern
+                for i in range(len(parts) - 1):
+                    potential_id = '_'.join(parts[:i+2])  # month_number
+                    if potential_id in self.id_to_concept:
+                        logger.debug(f"Extracted concept ID '{potential_id}' from ratio filename '{filename_stem}'")
+                        return potential_id
+
+        return None
     
     def get_concept_by_id(self, concept_id: str) -> Optional[Dict[str, Any]]:
         """Get design concept by ID.

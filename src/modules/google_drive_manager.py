@@ -10,14 +10,13 @@ Manages Google Drive operations for premium digital product delivery:
 - Organizes files professionally
 
 Features:
-- Service account authentication
+- OAuth 2.0 authentication (user can access created folders)
 - Batch file uploads
 - Shareable link generation
 - Error handling and retry logic
 - Professional folder organization
 """
 
-import os
 import logging
 import time
 from pathlib import Path
@@ -25,10 +24,11 @@ from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 
 # Google API imports
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
+
+# OAuth authentication
+from src.auth.google_oauth import GoogleOAuthManager
 
 logger = logging.getLogger(__name__)
 
@@ -52,41 +52,43 @@ class FolderResult:
 
 class GoogleDriveManager:
     """Manages Google Drive operations for digital product delivery."""
-    
-    def __init__(self, credentials_path: str = "credentials/google-sa.json"):
-        """Initialize Google Drive manager.
-        
+
+    def __init__(self, oauth_client_secrets: str = "credentials/google_oauth_client.json"):
+        """Initialize Google Drive manager with OAuth authentication.
+
         Args:
-            credentials_path: Path to service account credentials JSON
+            oauth_client_secrets: Path to OAuth client secrets JSON file
         """
-        self.credentials_path = Path(credentials_path)
+        self.oauth_client_secrets = oauth_client_secrets
         self.service = None
         self.parent_folder_id = None  # Will be set for digital products folder
-        
-        # Initialize Google Drive service
+        self.oauth_manager = None
+
+        # Initialize Google Drive service with OAuth
         self._initialize_service()
-        
-        logger.info("Google Drive Manager initialized")
+
+        logger.info("Google Drive Manager initialized with OAuth authentication")
     
     def _initialize_service(self):
-        """Initialize Google Drive API service."""
+        """Initialize Google Drive API service with OAuth authentication."""
         try:
-            if not self.credentials_path.exists():
-                raise FileNotFoundError(f"Credentials file not found: {self.credentials_path}")
-            
-            # Load service account credentials
-            credentials = service_account.Credentials.from_service_account_file(
-                str(self.credentials_path),
-                scopes=['https://www.googleapis.com/auth/drive']
-            )
-            
-            # Build Drive API service
-            self.service = build('drive', 'v3', credentials=credentials)
-            
-            # Test the connection
-            about = self.service.about().get(fields='user').execute()
-            logger.info(f"Connected to Google Drive as: {about.get('user', {}).get('emailAddress', 'Unknown')}")
-            
+            # Initialize OAuth manager
+            self.oauth_manager = GoogleOAuthManager(self.oauth_client_secrets)
+
+            # Authenticate with OAuth
+            if not self.oauth_manager.authenticate():
+                raise Exception("OAuth authentication failed")
+
+            # Get authenticated Drive service
+            self.service = self.oauth_manager.get_drive_service()
+
+            # Test the connection and get user info
+            success, message = self.oauth_manager.test_authentication()
+            if success:
+                logger.info(f"Google Drive OAuth authentication successful: {message}")
+            else:
+                raise Exception(f"Authentication test failed: {message}")
+
         except Exception as e:
             logger.error(f"Failed to initialize Google Drive service: {e}")
             raise
