@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from modules.google_drive_manager import GoogleDriveManager
 from modules.pdf_customizer import PDFCustomizer
 from api.etsy import EtsyAPIClient
-from modules.openai_seo_optimizer import OpenAISEOOptimizer
+from modules.market_validated_seo_optimizer import MarketValidatedSEOOptimizer
 from modules.custom_mockup_generator import CustomMockupGenerator
 from modules.cache_manager import CacheManager
 
@@ -63,7 +63,7 @@ class Phase3PremiumPipeline:
         # Use new organized folder structure
         self.mockup_files_dir = Path("assets/digital_downloads/mockup_files")
         self.production_files_dir = Path("assets/digital_downloads/production_files")
-        self.pdf_template_path = pdf_template_path or "DIGITAL DOWNLOAD TEMPLATE.pdf"
+        self.pdf_template_path = pdf_template_path or "docs/DIGITAL DOWNLOAD TEMPLATE.pdf"
         self.mode = mode
 
         # Initialize all components
@@ -107,7 +107,7 @@ class Phase3PremiumPipeline:
             
             # Existing components
             self.etsy_client = EtsyAPIClient()
-            self.seo_optimizer = OpenAISEOOptimizer()
+            self.seo_optimizer = MarketValidatedSEOOptimizer()
             self.mockup_generator = CustomMockupGenerator(
                 assets_dir="assets",
                 output_dir="output/phase3_mockups",
@@ -367,7 +367,7 @@ class Phase3PremiumPipeline:
                 listing_id = self.etsy_client.create_digital_download_listing(
                     title=seo_content['title'],
                     description=seo_content['description'],
-                    price=13.32,
+                    price=11.82,
                     tags=seo_content['tags'],
                     mockup_files=mockup_files,
                     static_image_ids=self.static_image_ids  # Copy 3 static images from template

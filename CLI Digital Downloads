@@ -1,3 +1,12 @@
+# Process all your designs for production
+python phase3_pipeline.py --mode batch
+
+# Test with one design first
+python phase3_pipeline.py --mode validate
+
+
+---------------------------------------------------
+
 # Run batch mode (process all designs in the folder)
 python pipeline.py --mode batch --verbose
 
@@ -9,3 +18,33 @@ python pipeline.py --mode batch
 
 # Run validate mode without verbose output
 python pipeline.py --mode validate
+
+# Validate mode (test single design)
+python phase3_pipeline.py --mode validate
+
+# Batch mode (process all designs)
+python phase3_pipeline.py --mode batch
+
+# Test cache manager functionality
+python test_cache_manager.py
+
+# Test PDF link embedding
+python test_pdf_customizer.py
+
+# Test with template
+python test_pdf_with_template.py
+
+# Test JPEG resizing
+python test_jpeg_resizer.py
+
+# Test PNG resizing  
+python test_png_resizer.py
+
+# Test SVG resizing
+python test_svg_resizer.py
+
+# Test file detection
+python test_phase3_file_detection.py
+
+# Process all your designs for production
+python phase3_pipeline.py --mode batch

@@ -71,7 +71,7 @@ def validate_environment():
     # Check required files
     required_files = [
         "credentials/google-sa.json",
-        "DIGITAL DOWNLOAD TEMPLATE.pdf"
+        "docs/DIGITAL DOWNLOAD TEMPLATE.pdf"
     ]
     
     missing_files = [f for f in required_files if not Path(f).exists()]
@@ -120,9 +120,10 @@ def run_validate_mode(pipeline: Phase3PremiumPipeline):
     
     # Process first design
     test_design = premium_designs[0]
-    print(f"🎨 Testing with design: {test_design.design_slug}")
-    print(f"   PNG: {test_design.filename}")
-    print(f"   SVG: {test_design.svg_filepath.name}")
+    print(f"🎨 Testing with design: {test_design['design_name']}")
+    print(f"   Folder: {test_design['folder_number']}")
+    print(f"   Mockup file: {test_design['mockup_file'].name}")
+    print(f"   Production files: {len(test_design['production_files'])}")
     print()
     
     result = pipeline.process_premium_design(test_design)

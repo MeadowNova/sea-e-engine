@@ -8,7 +8,7 @@ This design adds a cheeky twist to classic art, creating a statement piece that�
 With a variety of file sizes included, you can customize your print to fit your style and space. From large statement pieces to small accents, this digital download has you covered.
 
 What’s Included?
-You’ll receive high-resolution SVG Vector files (300 dpi) formatted for multiple aspect ratios to suit various print sizes:
+You’ll receive high-resolution JPEG files (300 DPI) formatted for multiple aspect ratios to suit various print sizes:
 
 A 4x5 Ratio File for Printing:
 	• 4"x5", 8"x10", 16"x20", 40x50cm
